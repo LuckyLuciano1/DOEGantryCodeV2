@@ -24,10 +24,12 @@ public:
         TURN_DRILL_OFF,
         TURN_DRILL_ON,
         TURN_FANS_OFF,
-        TURN_FANS_ON
+        TURN_FANS_ON,
+        MOVE_MOTOR,
+        CLOSE
     };
 
-    Arduino(const char *portName);
+    explicit Arduino(const char *portName);
     ~Arduino();
     void SendCommand(int command);
     void SendLongCommand();//currently unimplemented

@@ -23,16 +23,24 @@ int main() {
     electromagnets.TurnOn();
     Sleep(1000);
 
-    std::cout<<"Give Any Input To Begin Drill Sequence: ";
+    std::cout<<"Give Any Input To Begin Sequence: ";
     char input;
     std::cin>>input;
-
+    //gantry.MoveMotor();
+    //Sleep(5000);
+    //gantry.MoveMotor();
+    //Sleep(5000);
+    //gantry.MoveMotor();
+    //Sleep(5000);
+    //gantry.MoveMotor();
+    //Sleep(5000);
     drill.TurnOn();
-    Sleep(5000);
+    Sleep(7000);
     drill.TurnOff();
-    Sleep(5000);
+    Sleep(4000);
     electromagnets.TurnOff();
     fans.TurnOff();
 
+    arduino->SendCommand(Arduino::CLOSE);
     return 0;
 }

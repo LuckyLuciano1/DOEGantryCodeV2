@@ -13,6 +13,7 @@ private:
     Arduino *arduino;
 public:
     explicit Gantry(Arduino *arduino);
+    void MoveMotor();
 };
 
 
