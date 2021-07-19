@@ -6,6 +6,12 @@
 
 #IncludeRegexTransform: 
 
+C:/Users/Lucas Utke/Desktop/DOEGantryCodeV2/Arduino.cpp
+iostream
+-
+Arduino.h
+C:/Users/Lucas Utke/Desktop/DOEGantryCodeV2/Arduino.h
+
 C:/Users/Lucas Utke/Desktop/DOEGantryCodeV2/Arduino.h
 windows.h
 -
@@ -13,36 +19,4 @@ stdio.h
 -
 stdlib.h
 -
-
-C:/Users/Lucas Utke/Desktop/DOEGantryCodeV2/Drill.h
-Arduino.h
-C:/Users/Lucas Utke/Desktop/DOEGantryCodeV2/Arduino.h
-
-C:/Users/Lucas Utke/Desktop/DOEGantryCodeV2/Electromagnets.h
-Arduino.h
-C:/Users/Lucas Utke/Desktop/DOEGantryCodeV2/Arduino.h
-
-C:/Users/Lucas Utke/Desktop/DOEGantryCodeV2/Fans.h
-Arduino.h
-C:/Users/Lucas Utke/Desktop/DOEGantryCodeV2/Arduino.h
-
-C:/Users/Lucas Utke/Desktop/DOEGantryCodeV2/Gantry.h
-Arduino.h
-C:/Users/Lucas Utke/Desktop/DOEGantryCodeV2/Arduino.h
-
-C:/Users/Lucas Utke/Desktop/DOEGantryCodeV2/main.cpp
-iostream
--
-windows.h
--
-Arduino.h
-C:/Users/Lucas Utke/Desktop/DOEGantryCodeV2/Arduino.h
-Fans.h
-C:/Users/Lucas Utke/Desktop/DOEGantryCodeV2/Fans.h
-Gantry.h
-C:/Users/Lucas Utke/Desktop/DOEGantryCodeV2/Gantry.h
-Electromagnets.h
-C:/Users/Lucas Utke/Desktop/DOEGantryCodeV2/Electromagnets.h
-Drill.h
-C:/Users/Lucas Utke/Desktop/DOEGantryCodeV2/Drill.h
 

@@ -3,7 +3,7 @@ class motor {
     const double GR = 30;//gear ratio
     const double CPR = 64;//encoder counts per rotation
     const double MM_PER_ROT = 5;
-    const int overshoot = 384*1.7;//when within 384 count (aka 0.5mm), stop
+    const int overshoot = 384*1.7;//when within 384 count (aka 0.5mm), stop (1.7 tuning value)
 
     int in1, in2, quad1, quad2;
 

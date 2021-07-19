@@ -18,7 +18,9 @@ int main() {
     Gantry gantry(arduino);
 
     std::cout<<"Beginning Testing Sequence:"<<std::endl;
-    fans.TurnOn();
+    gantry.MoveMotorX("50");
+
+    /*fans.TurnOn();
     Sleep(1000);
     electromagnets.TurnOn();
     Sleep(1000);
@@ -36,15 +38,17 @@ int main() {
     gantry.MoveMotorX("0");
     Sleep(2000);
 
-    /*
-    drill.TurnOn();
-    Sleep(7000);
-    drill.TurnOff();
-    Sleep(4000);
-    */
-     electromagnets.TurnOff();
-    fans.TurnOff();
 
+
+    //drill.TurnOn();
+    //Sleep(7000);
+    //drill.TurnOff();
+    //Sleep(4000);
+
+    electromagnets.TurnOff();
+    fans.TurnOff();
+    */
+    std::cout<<"Closing Arduino";
     arduino->SendCommand(Arduino::CLOSE);
     return 0;
 }

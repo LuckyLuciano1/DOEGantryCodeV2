@@ -8,7 +8,9 @@ enum ARDUINO_COMMANDS {
   TURN_DRILL_ON,
   TURN_FANS_OFF,
   TURN_FANS_ON,
-  MOVE_MOTOR,
+  MOVE_X,
+  MOVE_Y,
+  MOVE_Z,
   CLOSE
 };
 
@@ -58,19 +60,17 @@ void loop() {
     else if (incomingByte == TURN_FANS_OFF + char_offset) {
       digitalWrite(FANS, LOW);
     }
-    else if (incomingByte == MOVE_MOTOR + char_offset) {
-
-
-      /*motor_loop++;
-        if (motor_loop == 1)
-        motor1.set_goal(20);
-        else if (motor_loop == 2)
-        motor1.set_goal(0);
-        else if (motor_loop == 3)
-        motor1.set_goal(40);
-        else if (motor_loop == 4)
-        motor1.set_goal(0);
-      */
+    else if (incomingByte == MOVE_X + char_offset) {
+      int value = 0;
+      while (Serial.available() > 0) { //read the appended numeric value
+        
+        char incomingByte = Serial.read();
+        int i_incomingByte = incomingByte - 48;
+        value *= 10;
+        value += i_incomingByte;
+      }
+      //Serial.write("asdf");
+      motor1.set_goal(value);
     }
     else if (incomingByte == CLOSE + char_offset) {
       digitalWrite(FANS, LOW);
