@@ -1,8 +1,8 @@
 class motor {
   private:
-    const double GR = 30;//gear ratio
-    const double CPR = 64;//encoder counts per rotation
-    const double MM_PER_ROT = 5;
+    double GR;//gear ratio
+    double CPR;//encoder counts per rotation
+    double MM_PER_ROT = 5;
     const int overshoot = 384*1.7;//when within 384 count (aka 0.5mm), stop (1.7 tuning value)
 
     int in1, in2, quad1, quad2;
@@ -14,13 +14,16 @@ class motor {
   public:
     Encoder *quad;
 
-    motor(int in1, int in2, int quad1, int quad2)
+    motor(int in1, int in2, int quad1, int quad2, int CPR, int GR, int MM_PER_ROT)
     {
       this->in1 = in1;
       this->in2 = in2;
       this->quad1 = quad1;
       this->quad2 = quad2;
-
+      this->CPR = CPR;
+      this->GR = GR;
+      this->MM_PER_ROT = MM_PER_ROT;
+      
       pinMode(in1, OUTPUT);
       pinMode(in2, OUTPUT);
       quad = new Encoder(quad1, quad2);

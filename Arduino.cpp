@@ -48,17 +48,15 @@ Arduino::Arduino(const char *portName) {
             if (!SetCommTimeouts(hSerial, &timeouts))
                 printf("failed to set timeouts!");
 
-
             //If everything went fine we're connected
             connected = true;
             //Flush any remaining characters in the buffers
             PurgeComm(hSerial, PURGE_RXCLEAR | PURGE_TXCLEAR);
             //We wait 2s as the arduino board will be resetting
+            printf("Resetting Board");
             Sleep(2000);
-
         }
     }
-
 }
 
 void Arduino::SendCommand(int command) {
@@ -75,23 +73,24 @@ void Arduino::SendCommand(int command) {
 
 void Arduino::SendLongCommand(int command, const char *data) {
     command += 65;
-    char com = command;
-    const char *c_command = &com;
+    std::string s_command(1, (char)command);
 
     char buffer[256];
-    strncpy(buffer, c_command, sizeof(buffer));
+    strncpy(buffer, s_command.c_str(), sizeof(buffer));
     strncat(buffer, data, sizeof(buffer));
+    strncat(buffer, "~", sizeof(buffer));//give ending flag
 
-    std::cout << ", sending command: " << (char) command;
+    std::cout << ", sending command: " << buffer;
 
     if (!WriteData(buffer, sizeof(buffer)))
         std::cout << ", data failed to send, ";
     else
         std::cout << ", data successfully sent, ";
 
-    Sleep(500);
+    Sleep(1000);
+    memset(buffer, 0, sizeof(buffer));//clear buffer
 
-    if (!ReadData(buffer, 5))
+    if (!ReadData(buffer, 256))
         std::cout << "data failed to receive" << std::endl;
     else
         std::cout << "received data: " << buffer<<std::endl;
@@ -100,24 +99,16 @@ void Arduino::SendLongCommand(int command, const char *data) {
 bool Arduino::ReadData(char *buffer, unsigned int nbChar) {
     //Number of bytes we'll have read
     DWORD bytesRead;
-    //Number of bytes we'll really ask to read
-    unsigned int toRead;
-
     //Use the ClearCommError function to get status info on the Serial port
     ClearCommError(hSerial, &errors, &status);
-
     //Check if there is something to read
-    if (this->status.cbInQue > 0) {
-        //If there is we check if there is enough data to read the required number
-        //of characters, if not we'll read only the available characters to prevent
-        //locking of the application.
-        if (status.cbInQue > nbChar) {
-            toRead = nbChar;
-        } else {
-            toRead = status.cbInQue;
-        }
+    if (status.cbInQue > 0) {
+        std::cout<<"something to read, ";
+        if(nbChar > status.cbInQue)
+            nbChar = status.cbInQue;
+
         //Try to read the require number of chars, and return the number of read bytes on success
-        if (ReadFile(this->hSerial, buffer, toRead, &bytesRead, nullptr)) {
+        if (ReadFile(hSerial, buffer, nbChar, &bytesRead, nullptr)) {
             return true;
         }
     }

@@ -18,7 +18,7 @@ int main() {
     Gantry gantry(arduino);
 
     std::cout<<"Beginning Testing Sequence:"<<std::endl;
-    gantry.MoveMotorX("50");
+    gantry.MoveMotorX("128");
 
     /*fans.TurnOn();
     Sleep(1000);
