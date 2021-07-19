@@ -13,17 +13,12 @@
   <component name="ChangeListManager">
     <list default="true" id="0da28ab1-dca0-4a79-852b-1aa4211cb5ab" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Arduino.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Arduino.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Arduino.h" beforeDir="false" afterPath="$PROJECT_DIR$/Arduino.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/DOE_Arduino/DOE_Arduino.ino" beforeDir="false" afterPath="$PROJECT_DIR$/DOE_Arduino/DOE_Arduino.ino" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/DOE_Arduino/motors.h" beforeDir="false" afterPath="$PROJECT_DIR$/DOE_Arduino/motors.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Gantry.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Gantry.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Gantry.h" beforeDir="false" afterPath="$PROJECT_DIR$/Gantry.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/DOEGantryV2.dir/Arduino.cpp.obj" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/DOEGantryV2.dir/Arduino.cpp.obj" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/DOEGantryV2.dir/CXX.includecache" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/DOEGantryV2.dir/CXX.includecache" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/DOEGantryV2.dir/Drill.cpp.obj" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/DOEGantryV2.dir/Drill.cpp.obj" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/DOEGantryV2.dir/Electromagnets.cpp.obj" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/DOEGantryV2.dir/Electromagnets.cpp.obj" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/DOEGantryV2.dir/Fans.cpp.obj" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/DOEGantryV2.dir/Fans.cpp.obj" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/DOEGantryV2.dir/Gantry.cpp.obj" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/DOEGantryV2.dir/Gantry.cpp.obj" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/DOEGantryV2.dir/main.cpp.obj" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/DOEGantryV2.dir/main.cpp.obj" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/DOEGantryV2.dir/objects.a" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/DOEGantryV2.dir/objects.a" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cmake-build-debug/DOEGantryV2.exe" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/DOEGantryV2.exe" afterDir="false" />
@@ -74,11 +69,6 @@
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
-    <configuration default="true" type="GradleAppRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true">
-      <method v="2">
-        <option name="com.jetbrains.cidr.cpp.gradle.execution.GradleNativeBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-      </method>
-    </configuration>
     <list>
       <item itemvalue="CMake Application.Unnamed" />
       <item itemvalue="CMake Application.DOEGantryV2" />
@@ -96,6 +86,8 @@
       <workItem from="1626287052073" duration="541000" />
       <workItem from="1626290372637" duration="7782000" />
       <workItem from="1626298532894" duration="6180000" />
+      <workItem from="1626455042979" duration="1443000" />
+      <workItem from="1626650501414" duration="4355000" />
     </task>
     <servers />
   </component>

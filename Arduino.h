@@ -25,14 +25,16 @@ public:
         TURN_DRILL_ON,
         TURN_FANS_OFF,
         TURN_FANS_ON,
-        MOVE_MOTOR,
+        MOVE_X,
+        MOVE_Y,
+        MOVE_Z,
         CLOSE
     };
 
     explicit Arduino(const char *portName);
     ~Arduino();
     void SendCommand(int command);
-    void SendLongCommand();//currently unimplemented
+    void SendLongCommand(int command, const char * data);
 
     //Read data in a buffer, if nbChar is greater than the
     //maximum number of bytes available, it will return only the

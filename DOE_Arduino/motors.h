@@ -1,22 +1,18 @@
 class motor {
-
   private:
-
     const double GR = 30;//gear ratio
     const double CPR = 64;//encoder counts per rotation
     const double MM_PER_ROT = 5;
+    const int overshoot = 384*1.7;//when within 384 count (aka 0.5mm), stop
 
     int in1, in2, quad1, quad2;
-    Encoder *quad;
 
-    double cur_pos = 0;
-    double des_pos = 0;
-    const int overshoot = 192;//when within 384 count (aka 0.5mm), stop
-    double acceleration = 0;
-    bool dir = true; //T = forward, F = backward
+    long cur_pos = 0;
+    long des_pos = 0;
     bool target_reached = true;
 
   public:
+    Encoder *quad;
 
     motor(int in1, int in2, int quad1, int quad2)
     {
@@ -33,62 +29,38 @@ class motor {
     void set_goal(double goal_mm) { //from range of (ex) 0 to 1500mm
       double rotations = goal_mm / MM_PER_ROT;
       des_pos = rotations * GR * CPR;
-
-      target_reached = false;
-    }
-    void set_relative_goal(double diff_mm) {
-      double goal_mm = des_pos + diff_mm;
-      double rotations = goal_mm / MM_PER_ROT;
-      des_pos = rotations * GR * CPR;
-
       target_reached = false;
     }
 
-    void update_motor()
-    {
-      if (!target_reached) {
-        cur_pos = quad->read();//update current position
+    void update_motor() {
 
-        if (cur_pos + overshoot < des_pos) {
-          //slow down if switching direction:
-          if (dir == false) //aka was moving backward last cycle
-          {
-            dir = true;
-            acceleration = 0;
-            analogWrite(in1, 0);
-          }
-          if (acceleration < 255)
-            acceleration += 0.125;
+     cur_pos = quad->read();//update current position
 
-          analogWrite(in2, 255);
+     if (!target_reached) {//move towards target
+
+        if (cur_pos +overshoot < des_pos) {
+          digitalWrite(in1, LOW);
+          digitalWrite(in2, HIGH);
         }
         else if (cur_pos - overshoot > des_pos) {
-          //slow down if switching direction:
-          if (dir == true) //aka was moving forward last cycle
-          {
-            dir = false;
-            acceleration = 0;
-            analogWrite(in2, 0);
-          }
-          //
-          if (acceleration < 255)
-            acceleration += 0.125;
-
-          analogWrite(in1, 255);
+          digitalWrite(in2, LOW);
+          digitalWrite(in1, HIGH);
         }
-        else { //near target - slow down
-          acceleration--;
-          if (acceleration == 0)
-            target_reached = true;
+        else { //near target - stop
+          target_reached = true;
+          digitalWrite(in1, LOW);
+          digitalWrite(in2, LOW);
         }
       }
-
     }
-    void close_motor(){
-      analogWrite(in1, 0);
-      analogWrite(in2, 0);
+    void close_motor() {
+      digitalWrite(in1, LOW);
+      digitalWrite(in2, LOW);
     }
     int get_goal() {
       return des_pos;
+    }
+    long get_pos() {
+      return cur_pos;
     }
 };

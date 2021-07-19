@@ -16,9 +16,10 @@ enum ARDUINO_COMMANDS {
 #define DRILL 6
 #define FANS 7
 
-motor motor1(A4, A5, 2, 3);
-motor motor2(A2, A3, 19, 18);
-motor motor3(A0, A1, 21, 20);
+//motor motor_vert(A6, A7);
+motor motor1(A5, A4, 2, 3);
+motor motor2(A3, A2, 18, 19);
+motor motor3(A1, A0, 20, 21);
 
 void setup() {
   Serial.begin(9600);
@@ -58,15 +59,18 @@ void loop() {
       digitalWrite(FANS, LOW);
     }
     else if (incomingByte == MOVE_MOTOR + char_offset) {
-      motor_loop++;
-      if (motor_loop == 1)
-        motor1.set_goal(10);
-      else if (motor_loop == 2)
+
+
+      /*motor_loop++;
+        if (motor_loop == 1)
+        motor1.set_goal(20);
+        else if (motor_loop == 2)
         motor1.set_goal(0);
-      else if (motor_loop == 3)
-        motor1.set_goal(15);
-      else if (motor_loop == 4)
+        else if (motor_loop == 3)
+        motor1.set_goal(40);
+        else if (motor_loop == 4)
         motor1.set_goal(0);
+      */
     }
     else if (incomingByte == CLOSE + char_offset) {
       digitalWrite(FANS, LOW);

@@ -66,8 +66,21 @@ void Arduino::SendCommand(int command) {
         std::cout<<", data successfully sent"<<std::endl;
 }
 
-void Arduino::SendLongCommand() {
+void Arduino::SendLongCommand(int command, const char * data) {
+    command += 65;
+    char com = command;
+    const char* c_command = &com;
 
+    char buffer[256];
+    strncpy(buffer, c_command, sizeof(buffer));
+    strncat(buffer, data, sizeof(buffer));
+
+    std::cout<<", sending command: "<<(char)command;
+
+    if(!WriteData(buffer, 1))
+        std::cout<<", data failed to send"<<std::endl;
+    else
+        std::cout<<", data successfully sent"<<std::endl;
 }
 
 Arduino::~Arduino(){
