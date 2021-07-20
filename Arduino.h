@@ -6,8 +6,8 @@
 #define DOEGANTRYV2_ARDUINO_H
 
 #include <windows.h>
-#include <stdio.h>
-#include <stdlib.h>
+#include <cstdio>
+#include <cstdlib>
 
 class Arduino {
 private:
@@ -33,18 +33,13 @@ public:
 
     explicit Arduino(const char *portName);
     ~Arduino();
+
     void SendCommand(int command);
     void SendLongCommand(int command, const char * data);
 
-    //Read data in a buffer, if nbChar is greater than the
-    //maximum number of bytes available, it will return only the
-    //bytes available. The function return -1 when nothing could
-    //be read, the number of bytes actually read.
     bool ReadData(char *buffer, unsigned int nbChar);
-    //Writes data from a buffer through the Serial connection
-    //return true on success.
     bool WriteData(const char *buffer, unsigned int nbChar);
-    //Check if we are actually connected
+
     bool IsConnected() const{ return connected; }
 };
 

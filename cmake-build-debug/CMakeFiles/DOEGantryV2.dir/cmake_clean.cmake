@@ -2,6 +2,7 @@ file(REMOVE_RECURSE
   "CMakeFiles/DOEGantryV2.dir/Arduino.cpp.obj"
   "CMakeFiles/DOEGantryV2.dir/Drill.cpp.obj"
   "CMakeFiles/DOEGantryV2.dir/Electromagnets.cpp.obj"
+  "CMakeFiles/DOEGantryV2.dir/EventManager.cpp.obj"
   "CMakeFiles/DOEGantryV2.dir/Fans.cpp.obj"
   "CMakeFiles/DOEGantryV2.dir/Gantry.cpp.obj"
   "CMakeFiles/DOEGantryV2.dir/main.cpp.obj"

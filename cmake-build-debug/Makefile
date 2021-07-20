@@ -222,6 +222,33 @@ Electromagnets.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\DOEGantryV2.dir\build.make CMakeFiles/DOEGantryV2.dir/Electromagnets.cpp.s
 .PHONY : Electromagnets.cpp.s
 
+EventManager.obj: EventManager.cpp.obj
+
+.PHONY : EventManager.obj
+
+# target to build an object file
+EventManager.cpp.obj:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\DOEGantryV2.dir\build.make CMakeFiles/DOEGantryV2.dir/EventManager.cpp.obj
+.PHONY : EventManager.cpp.obj
+
+EventManager.i: EventManager.cpp.i
+
+.PHONY : EventManager.i
+
+# target to preprocess a source file
+EventManager.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\DOEGantryV2.dir\build.make CMakeFiles/DOEGantryV2.dir/EventManager.cpp.i
+.PHONY : EventManager.cpp.i
+
+EventManager.s: EventManager.cpp.s
+
+.PHONY : EventManager.s
+
+# target to generate assembly for a file
+EventManager.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\DOEGantryV2.dir\build.make CMakeFiles/DOEGantryV2.dir/EventManager.cpp.s
+.PHONY : EventManager.cpp.s
+
 Fans.obj: Fans.cpp.obj
 
 .PHONY : Fans.obj
@@ -321,6 +348,9 @@ help:
 	@echo ... Electromagnets.obj
 	@echo ... Electromagnets.i
 	@echo ... Electromagnets.s
+	@echo ... EventManager.obj
+	@echo ... EventManager.i
+	@echo ... EventManager.s
 	@echo ... Fans.obj
 	@echo ... Fans.i
 	@echo ... Fans.s

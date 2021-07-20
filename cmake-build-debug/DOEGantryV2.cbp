@@ -98,6 +98,12 @@
 		<Unit filename="C:/Users/Lucas Utke/Desktop/DOEGantryCodeV2/Electromagnets.h">
 			<Option target="DOEGantryV2"/>
 		</Unit>
+		<Unit filename="C:/Users/Lucas Utke/Desktop/DOEGantryCodeV2/EventManager.cpp">
+			<Option target="DOEGantryV2"/>
+		</Unit>
+		<Unit filename="C:/Users/Lucas Utke/Desktop/DOEGantryCodeV2/EventManager.h">
+			<Option target="DOEGantryV2"/>
+		</Unit>
 		<Unit filename="C:/Users/Lucas Utke/Desktop/DOEGantryCodeV2/Fans.cpp">
 			<Option target="DOEGantryV2"/>
 		</Unit>

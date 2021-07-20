@@ -3,4 +3,4 @@ project(DOEGantryV2)
 
 set(CMAKE_CXX_STANDARD 14)
 
-add_executable(DOEGantryV2 main.cpp Drill.cpp Drill.h Gantry.cpp Gantry.h Electromagnets.cpp Electromagnets.h Arduino.cpp Arduino.h Fans.cpp Fans.h)
+add_executable(DOEGantryV2 main.cpp Drill.cpp Drill.h Gantry.cpp Gantry.h Electromagnets.cpp Electromagnets.h Arduino.cpp Arduino.h Fans.cpp Fans.h EventManager.cpp EventManager.h)

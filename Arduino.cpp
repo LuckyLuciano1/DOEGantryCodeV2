@@ -17,7 +17,8 @@ Arduino::Arduino(const char *portName) {
             printf("ERROR: Handle was not attached. Reason: %s not available.\n", portName);
         else
             printf("ERROR!!!");
-    } else {
+    }
+    else {
         //If connected we try to set the comm parameters
         DCB dcbSerialParams = {0};
 
@@ -52,9 +53,12 @@ Arduino::Arduino(const char *portName) {
             connected = true;
             //Flush any remaining characters in the buffers
             PurgeComm(hSerial, PURGE_RXCLEAR | PURGE_TXCLEAR);
-            //We wait 2s as the arduino board will be resetting
+            //Wait 2s as the arduino board will be resetting
             printf("Resetting Board");
             Sleep(2000);
+
+            if(IsConnected())
+                std::cout<<"Arduino Connection Successful"<<std::endl;
         }
     }
 }
@@ -66,9 +70,9 @@ void Arduino::SendCommand(int command) {
     std::cout << ", sending command: " << (char) command;
 
     if (!WriteData(c_command, 5))
-        std::cout << ", data failed to send" << std::endl;
+        std::cout << ", data failed to send." << std::endl;
     else
-        std::cout << ", data successfully sent" << std::endl;
+        std::cout << ", data successfully sent." << std::endl;
 }
 
 void Arduino::SendLongCommand(int command, const char *data) {
@@ -87,13 +91,13 @@ void Arduino::SendLongCommand(int command, const char *data) {
     else
         std::cout << ", data successfully sent, ";
 
-    Sleep(1000);
+    //Sleep(500);//if data is not being sent back, try uncommenting
     memset(buffer, 0, sizeof(buffer));//clear buffer
 
     if (!ReadData(buffer, 256))
-        std::cout << "data failed to receive" << std::endl;
+        std::cout << "recieved no data back." << std::endl;
     else
-        std::cout << "received data: " << buffer<<std::endl;
+        std::cout << "received back: " << buffer<<std::endl;
 }
 
 bool Arduino::ReadData(char *buffer, unsigned int nbChar) {
@@ -103,37 +107,29 @@ bool Arduino::ReadData(char *buffer, unsigned int nbChar) {
     ClearCommError(hSerial, &errors, &status);
     //Check if there is something to read
     if (status.cbInQue > 0) {
-        std::cout<<"something to read, ";
         if(nbChar > status.cbInQue)
             nbChar = status.cbInQue;
 
-        //Try to read the require number of chars, and return the number of read bytes on success
-        if (ReadFile(hSerial, buffer, nbChar, &bytesRead, nullptr)) {
+        if (ReadFile(hSerial, buffer, nbChar, &bytesRead, nullptr))
             return true;
-        }
     }
-
-    //If nothing has been read, or that an error was detected return 0
     return false;
 }
 
 bool Arduino::WriteData(const char *buffer, unsigned int nbChar) {
-    //WriteFile(hSerial, buffer, 1, &nbChar, NULL);
     DWORD bytesSend;
     //Try to write the buffer on the Serial port
     if (!WriteFile(hSerial, buffer, nbChar, &bytesSend, nullptr)) {
         ClearCommError(hSerial, &errors, &status);
         return false;
-    } else
+    }
+    else
         return true;
 }
 
 Arduino::~Arduino() {
-    //Check if we are connected before trying to disconnect
     if (connected) {
-        //We're no longer connected
         connected = false;
-        //Close the serial handler
         CloseHandle(hSerial);
     }
 }
