@@ -12,6 +12,14 @@ CMakeFiles/DOEGantryV2.dir/Electromagnets.cpp.obj: ../Arduino.h
 CMakeFiles/DOEGantryV2.dir/Electromagnets.cpp.obj: ../Electromagnets.cpp
 CMakeFiles/DOEGantryV2.dir/Electromagnets.cpp.obj: ../Electromagnets.h
 
+CMakeFiles/DOEGantryV2.dir/EventManager.cpp.obj: ../Arduino.h
+CMakeFiles/DOEGantryV2.dir/EventManager.cpp.obj: ../Drill.h
+CMakeFiles/DOEGantryV2.dir/EventManager.cpp.obj: ../Electromagnets.h
+CMakeFiles/DOEGantryV2.dir/EventManager.cpp.obj: ../EventManager.cpp
+CMakeFiles/DOEGantryV2.dir/EventManager.cpp.obj: ../EventManager.h
+CMakeFiles/DOEGantryV2.dir/EventManager.cpp.obj: ../Fans.h
+CMakeFiles/DOEGantryV2.dir/EventManager.cpp.obj: ../Gantry.h
+
 CMakeFiles/DOEGantryV2.dir/Fans.cpp.obj: ../Arduino.h
 CMakeFiles/DOEGantryV2.dir/Fans.cpp.obj: ../Fans.cpp
 CMakeFiles/DOEGantryV2.dir/Fans.cpp.obj: ../Fans.h
@@ -23,6 +31,7 @@ CMakeFiles/DOEGantryV2.dir/Gantry.cpp.obj: ../Gantry.h
 CMakeFiles/DOEGantryV2.dir/main.cpp.obj: ../Arduino.h
 CMakeFiles/DOEGantryV2.dir/main.cpp.obj: ../Drill.h
 CMakeFiles/DOEGantryV2.dir/main.cpp.obj: ../Electromagnets.h
+CMakeFiles/DOEGantryV2.dir/main.cpp.obj: ../EventManager.h
 CMakeFiles/DOEGantryV2.dir/main.cpp.obj: ../Fans.h
 CMakeFiles/DOEGantryV2.dir/main.cpp.obj: ../Gantry.h
 CMakeFiles/DOEGantryV2.dir/main.cpp.obj: ../main.cpp

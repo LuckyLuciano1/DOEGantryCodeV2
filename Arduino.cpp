@@ -54,7 +54,7 @@ Arduino::Arduino(const char *portName) {
             //Flush any remaining characters in the buffers
             PurgeComm(hSerial, PURGE_RXCLEAR | PURGE_TXCLEAR);
             //Wait 2s as the arduino board will be resetting
-            printf("Resetting Board");
+            printf("Resetting Board... ");
             Sleep(2000);
 
             if(IsConnected())
@@ -91,11 +91,10 @@ void Arduino::SendLongCommand(int command, const char *data) {
     else
         std::cout << ", data successfully sent, ";
 
-    //Sleep(500);//if data is not being sent back, try uncommenting
     memset(buffer, 0, sizeof(buffer));//clear buffer
 
     if (!ReadData(buffer, 256))
-        std::cout << "recieved no data back." << std::endl;
+        std::cout << "received no data back." << std::endl;
     else
         std::cout << "received back: " << buffer<<std::endl;
 }

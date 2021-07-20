@@ -22,28 +22,29 @@ EventManager::EventManager(const char *portName) {
 void EventManager::RunNextCommand() {
     switch (eventCount) {
         case 0:
-            gantry->MoveMotorX("50");
-            countdown = 2000;
+            gantry->MoveMotorY("100");
+            countdown = 300;
             break;
         case 1:
-            gantry->MoveMotorX("0");
-            countdown = 2000;
+            gantry->MoveMotorX("40");
+            countdown = 100;
             break;
         case 2:
-            gantry->MoveMotorX("25");
-            countdown = 1000;
+            drill->TurnOn();
+            countdown = 300;
             break;
         case 3:
-            gantry->MoveMotorX("0");
-            countdown = 1000;
+            drill->TurnOff();
+            countdown = 100;
             break;
         case 4:
-            gantry->MoveMotorX("100");
-            countdown = 4000;
+            gantry->MoveMotorX("0");
+            gantry->MoveMotorY("0");
+            countdown = 300;
             break;
         case 5:
-            gantry->MoveMotorX("0");
-            countdown = 4000;
+            //gantry->MoveMotorZ("0");
+            //countdown = 400;
             break;
         default://if all commands have been run
             std::cout<<"All commands have been processed, exiting event manager"<<std::endl;
@@ -69,6 +70,9 @@ void EventManager::Update() {
         countdown--;
 
     //receive error warnings from arduino here (or other repeated data)
+
+    //~100fps - need a more robust timer
+    Sleep(10);
 }
 
 void EventManager::ShutDown() {

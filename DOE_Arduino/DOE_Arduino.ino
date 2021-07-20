@@ -21,14 +21,14 @@ enum ARDUINO_COMMANDS {
 int pololu_CPR = 64;
 int pololu_GR = 30;
 int pololu_MM_PER_ROT = 5;
-int maxon_CPR = 512;
-int maxon_GR = 19;//temp
-int maxon_MM_PER_ROT = 5;//temp
+int maxon_CPR = 500;
+int maxon_GR = 308;//temp
+int maxon_MM_PER_ROT = 93;//temp
 
-motor motorX1(A5, A4, 2, 3, pololu_GR, pololu_CPR, pololu_MM_PER_ROT);
-motor motorY1(A3, A2, 16, 19, pololu_GR, pololu_CPR, pololu_MM_PER_ROT);
-motor motorY2(A1, A0, 17, 21, pololu_GR, pololu_CPR, pololu_MM_PER_ROT);
-motor motorZ1(A6, A7, 18, 20, maxon_GR, maxon_GR, maxon_MM_PER_ROT);
+motor motorZ1(A9, A8, 21, 20, maxon_GR, maxon_GR, maxon_MM_PER_ROT);
+motor motorX1(A7, A6, 19, 17, pololu_GR, pololu_CPR, pololu_MM_PER_ROT);
+motor motorY1(A5, A4, 18, 16, pololu_GR, pololu_CPR, pololu_MM_PER_ROT);
+motor motorY2(A3, A2, 2, 3, pololu_GR, pololu_CPR, pololu_MM_PER_ROT);
 
 void setup() {
   Serial.begin(9600);
@@ -69,16 +69,16 @@ void loop() {
     }
     else if (incomingByte == MOVE_X + char_offset) {
       int value = read_and_echo_serial();
-      motorX1(value);
+      motorX1.set_goal(value);
     }
     else if (incomingByte == MOVE_Y + char_offset) {
       int value = read_and_echo_serial();
-      motorY1(value);
-      motorY2(value);
+      motorY1.set_goal(value);
+      motorY2.set_goal(value);
     }
     else if (incomingByte == MOVE_Z + char_offset) {
       int value = read_and_echo_serial();
-      motorZ1(value);
+      motorZ1.set_goal(value);
     }
     else if (incomingByte == CLOSE + char_offset) {
       digitalWrite(FANS, LOW);
@@ -92,8 +92,9 @@ void loop() {
   }
 }
 
-int read_values() {
+int read_and_echo_serial() {
   char incomingByte = Serial.read();
+  int value = 0;
   while (incomingByte != '~') {                     //read the appended numeric value
     if (incomingByte >= 48 && incomingByte <= 57) { //read data if valid
       int i_incomingByte = incomingByte - '0';//char -> int
@@ -106,5 +107,5 @@ int read_values() {
   char b_value[256];
   itoa(value, b_value, 10);
   Serial.write(b_value);
-  motor1.set_goal(value);
+  return value;
 }

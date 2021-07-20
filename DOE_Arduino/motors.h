@@ -3,7 +3,7 @@ class motor {
     double GR;//gear ratio
     double CPR;//encoder counts per rotation
     double MM_PER_ROT = 5;
-    const int overshoot = 384*1.7;//when within 384 count (aka 0.5mm), stop (1.7 tuning value)
+    const int overshoot = 384 * 1.7; //when within 384 count (aka 0.5mm), stop (1.7 tuning value)
 
     int in1, in2, quad1, quad2;
 
@@ -23,9 +23,11 @@ class motor {
       this->CPR = CPR;
       this->GR = GR;
       this->MM_PER_ROT = MM_PER_ROT;
-      
+
       pinMode(in1, OUTPUT);
       pinMode(in2, OUTPUT);
+      digitalWrite(in1, LOW);
+      digitalWrite(in2, LOW);
       quad = new Encoder(quad1, quad2);
     }
 
@@ -37,11 +39,11 @@ class motor {
 
     void update_motor() {
 
-     cur_pos = quad->read();//update current position
+      cur_pos = quad->read();//update current position
 
-     if (!target_reached) {//move towards target
+      if (!target_reached) {//move towards target
 
-        if (cur_pos +overshoot < des_pos) {
+        if (cur_pos + overshoot < des_pos) {
           digitalWrite(in1, LOW);
           digitalWrite(in2, HIGH);
         }
