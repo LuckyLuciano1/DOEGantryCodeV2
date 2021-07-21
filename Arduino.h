@@ -25,6 +25,7 @@ public:
         TURN_DRILL_ON,
         TURN_FANS_OFF,
         TURN_FANS_ON,
+        HOME,
         MOVE_X,
         MOVE_Y,
         MOVE_Z,

@@ -22,28 +22,31 @@ EventManager::EventManager(const char *portName) {
 void EventManager::RunNextCommand() {
     switch (eventCount) {
         case 0:
-            gantry->MoveMotorY("100");
-            countdown = 300;
+            ManualStall();
+            gantry->MoveGantryX("20");
+            //gantry->HomeGantry();
+            //ManualStall();
+            countdown = 100;
             break;
         case 1:
-            gantry->MoveMotorX("40");
+            gantry->MoveGantryX("0");
             countdown = 100;
             break;
         case 2:
-            drill->TurnOn();
-            countdown = 300;
+            //drill->TurnOn();
+            //countdown = 300;
             break;
         case 3:
-            drill->TurnOff();
-            countdown = 100;
+            //drill->TurnOff();
+            //countdown = 100;
             break;
         case 4:
-            gantry->MoveMotorX("0");
-            gantry->MoveMotorY("0");
-            countdown = 300;
+            //gantry->MoveGantryX("0");
+            //gantry->MoveGantryY("0");
+            //countdown = 300;
             break;
         case 5:
-            //gantry->MoveMotorZ("0");
+            //gantry->MoveGantryZ("0");
             //countdown = 400;
             break;
         default://if all commands have been run
@@ -91,6 +94,12 @@ EventManager::~EventManager() {
     std::cout << "Closing Arduino";
     arduino->SendCommand(Arduino::CLOSE);
     delete arduino;
+}
+
+void EventManager::ManualStall() {
+    std::cout<<"Manual Stall Initiated, Give Input to Continue: ";
+    char input;
+    std::cin>>input;
 }
 
 

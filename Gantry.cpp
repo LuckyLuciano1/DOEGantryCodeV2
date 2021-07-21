@@ -9,21 +9,25 @@ Gantry::Gantry(Arduino *arduino) {
     this->arduino = arduino;
 }
 
-void Gantry::MoveMotor(const char* posXmm, const char* posYmm, const char* posZmm) {
-    std::cout<<"Moving Motor";
+void Gantry::MoveGantry(const char* posXmm, const char* posYmm, const char* posZmm) {
+    std::cout<<"Moving Gantry";
     arduino->SendLongCommand(Arduino::MOVE_X, posXmm);
     arduino->SendLongCommand(Arduino::MOVE_Y, posYmm);
     arduino->SendLongCommand(Arduino::MOVE_Z, posZmm);
 }
-void Gantry::MoveMotorX(const char* posXmm) {
-    std::cout<<"Moving Motor";
+void Gantry::MoveGantryX(const char* posXmm) {
+    std::cout<<"Moving Gantry";
     arduino->SendLongCommand(Arduino::MOVE_X, posXmm);
 }
-void Gantry::MoveMotorY(const char* posYmm) {
-    std::cout<<"Moving Motor";
+void Gantry::MoveGantryY(const char* posYmm) {
+    std::cout<<"Moving Gantry";
     arduino->SendLongCommand(Arduino::MOVE_Y, posYmm);
 }
-void Gantry::MoveMotorZ(const char* posZmm) {
-    std::cout<<"Moving Motor";
+void Gantry::MoveGantryZ(const char* posZmm) {
+    std::cout<<"Moving Gantry";
     arduino->SendLongCommand(Arduino::MOVE_Z, posZmm);
+}
+void Gantry::HomeGantry() {
+    std::cout<<"Homing Gantry";
+    arduino->SendCommand(Arduino::HOME);
 }

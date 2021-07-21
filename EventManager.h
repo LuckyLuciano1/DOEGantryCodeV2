@@ -30,7 +30,7 @@ public:
     void StartUp();
     void ShutDown();
     void RunNextCommand();
-
+    void ManualStall();
     ~EventManager();
 };
 
