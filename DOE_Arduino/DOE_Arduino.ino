@@ -41,6 +41,7 @@ motor motorY2("Y2", A3, A2, 2, 3, 35, 37, pololu_GR, pololu_CPR, pololu_MM_PER_R
 
 void setup() {
   Serial.begin(9600);
+  setPWMfrequency(0x02);// timer 0 , 3.92KHz; for better motor performance
   pinMode(ELECTROMAGNETS, OUTPUT);
   pinMode(DRILL, OUTPUT);
   pinMode(FANS, OUTPUT);
@@ -122,6 +123,10 @@ int read_and_echo_serial() {
   return value;
 }
 
+void setPWMfrequency(int freq) {
+  TCCR0B = TCCR0B & 0b11111000 | freq ;
+}
+
 void homing_sequence() {
   //-----------------------------------------------------
   //x axis homing:
@@ -140,9 +145,9 @@ void homing_sequence() {
   motorX1.stop_motor();
   motorX1.max_pos = motorX1.cur_pos;
   delay(1000);
-  
+
   motorX1.set_goal(0);
-  
+
   //-----------------------------------------------------
   //y axis homing:
   motorY1.move_back();
@@ -171,22 +176,22 @@ void homing_sequence() {
   motorY1.set_goal(0);
   motorY2.set_goal(0);
   /*
-  //-----------------------------------------------------
-  //z axis homing:
-  motorZ1.move_back();
-  while (!digitalRead(motorZ1.switch_home)) { //find 0
-  }
-  //on finding 0, update position:
-  motorZ1.stop_motor();
-  motorZ1.quad->write(0);
-  delay(1000);
-  motorZ1.move_forward();
-  while (!digitalRead(motorZ1.switch_max)) { //find max
+    //-----------------------------------------------------
+    //z axis homing:
+    motorZ1.move_back();
+    while (!digitalRead(motorZ1.switch_home)) { //find 0
+    }
+    //on finding 0, update position:
+    motorZ1.stop_motor();
+    motorZ1.quad->write(0);
+    delay(1000);
+    motorZ1.move_forward();
+    while (!digitalRead(motorZ1.switch_max)) { //find max
     motorZ1.cur_pos = motorZ1.quad->read();
-  }
-  //on finding max, update position:
-  motorZ1.stop_motor();
-  motorZ1.max_pos = motorZ1.cur_pos;
-  delay(1000);
+    }
+    //on finding max, update position:
+    motorZ1.stop_motor();
+    motorZ1.max_pos = motorZ1.cur_pos;
+    delay(1000);
   */
 }

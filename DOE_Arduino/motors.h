@@ -8,7 +8,7 @@ class motor {
     int in1, in2, quad1, quad2;
     const char* label;
     bool target_reached = true;
-  
+
   public:
     long cur_pos = 0;
     long des_pos = 0;
@@ -49,13 +49,13 @@ class motor {
       des_pos = rotations * GR * CPR;
       target_reached = false;
       /*
-      int buffer_count = GR*CPR;
-      
-      if (des_pos - buffer_count < 0)
+        int buffer_count = GR*CPR;
+
+        if (des_pos - buffer_count < 0)
         des_pos = 0;
-      if (des_pos + buffer_count> max_pos)
+        if (des_pos + buffer_count> max_pos)
         des_pos = max_pos;
-        */
+      */
     }
 
     void update_motor() {
@@ -64,20 +64,20 @@ class motor {
 
       //limit switches:
       /*
-      if (!digitalRead(switch_home)) {//if a voltage is not registered, the switch has been activated (or there is a miswiring)
+        if (!digitalRead(switch_home)) {//if a voltage is not registered, the switch has been activated (or there is a miswiring)
         target_reached = true;
         cur_pos = 0;//recalibrate
         quad->write(0);
         des_pos = cur_pos;
         stop_motor();
-      }
-      if (!digitalRead(switch_max)) {
+        }
+        if (!digitalRead(switch_max)) {
         target_reached = true;
         max_pos = cur_pos;//recalibrate
         quad->write(cur_pos);
         des_pos = cur_pos;
         stop_motor();
-      }
+        }
       */
       //targeting:
       if (!target_reached) {//move towards target
@@ -103,12 +103,16 @@ class motor {
       digitalWrite(in2, LOW);
     }
     void move_forward() {
-      digitalWrite(in1, LOW);
-      digitalWrite(in2, HIGH);
+      analogWrite(in1, 0);
+      analogWrite(in2, 255);
+      //digitalWrite(in1, LOW);
+      //digitalWrite(in2, HIGH);
     }
     void move_back() {
-      digitalWrite(in2, LOW);
-      digitalWrite(in1, HIGH);
+      analogWrite(in2, 0);
+      analogWrite(in1, 255);
+      //digitalWrite(in2, LOW);
+      //digitalWrite(in1, HIGH);
     }
-
+    
 };

@@ -13,14 +13,8 @@
   <component name="ChangeListManager">
     <list default="true" id="0da28ab1-dca0-4a79-852b-1aa4211cb5ab" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Arduino.h" beforeDir="false" afterPath="$PROJECT_DIR$/Arduino.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/DOE_Arduino/DOE_Arduino.ino" beforeDir="false" afterPath="$PROJECT_DIR$/DOE_Arduino/DOE_Arduino.ino" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/DOE_Arduino/motors.h" beforeDir="false" afterPath="$PROJECT_DIR$/DOE_Arduino/motors.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/EventManager.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/EventManager.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/EventManager.h" beforeDir="false" afterPath="$PROJECT_DIR$/EventManager.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Gantry.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Gantry.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Gantry.h" beforeDir="false" afterPath="$PROJECT_DIR$/Gantry.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/DOEGantryV2.exe" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/DOEGantryV2.exe" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cmake-build-debug/Testing/Temporary/LastTest.log" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/Testing/Temporary/LastTest.log" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -65,11 +59,6 @@
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
-    <configuration default="true" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-      </method>
-    </configuration>
     <list>
       <item itemvalue="CMake Application.Unnamed" />
       <item itemvalue="CMake Application.DOEGantryV2" />
@@ -94,6 +83,7 @@
       <workItem from="1626802778965" duration="15530000" />
       <workItem from="1626836148967" duration="1264000" />
       <workItem from="1626887287220" duration="8505000" />
+      <workItem from="1626906507530" duration="656000" />
     </task>
     <servers />
   </component>
