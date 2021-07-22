@@ -21,6 +21,10 @@ public:
     void MoveGantryZ(const char* posZ);
 
     void HomeGantry();
+
+    void SetGantryXSpeed(const char* spX);
+    void SetGantryYSpeed(const char* spY);
+    void SetGantryZSpeed(const char* spZ);
 };
 
 

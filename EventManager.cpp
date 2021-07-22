@@ -20,34 +20,38 @@ EventManager::EventManager(const char *portName) {
 }
 
 void EventManager::RunNextCommand() {
+    enum EVENT_ORDER{
+        HOMING,
+        TOGGLE_DRILL,
+        MOVE_X_START,
+        MOVE_X_END
+    };
+
     switch (eventCount) {
-        case 0:
+        case HOMING:
+            std::cout<<"------------------------Beginning Homing Procedure------------------------"<<std::endl;
             ManualStall();
+            gantry->HomeGantry();
+            ManualStall();
+            countdown = 30;
+            break;
+        case TOGGLE_DRILL:
+            /*std::cout<<"------------------------     Activating Drill     ------------------------"<<std::endl;
+            ManualStall();
+            drill->TurnOn();
+            ManualStall();
+            drill->TurnOff();
+            countdown = 500;*/
+            break;
+        case MOVE_X_START:
+            /*gantry->SetGantryXSpeed("100");
             gantry->MoveGantryX("20");
-            //gantry->HomeGantry();
-            //ManualStall();
-            countdown = 100;
+            countdown = 100;*/
             break;
-        case 1:
+        case MOVE_X_END:
+            /*gantry->SetGantryXSpeed("100");
             gantry->MoveGantryX("0");
-            countdown = 100;
-            break;
-        case 2:
-            //drill->TurnOn();
-            //countdown = 300;
-            break;
-        case 3:
-            //drill->TurnOff();
-            //countdown = 100;
-            break;
-        case 4:
-            //gantry->MoveGantryX("0");
-            //gantry->MoveGantryY("0");
-            //countdown = 300;
-            break;
-        case 5:
-            //gantry->MoveGantryZ("0");
-            //countdown = 400;
+            countdown = 100*/
             break;
         default://if all commands have been run
             std::cout<<"All commands have been processed, exiting event manager"<<std::endl;
@@ -81,6 +85,7 @@ void EventManager::Update() {
 void EventManager::ShutDown() {
     std::cout<<"------------------------Beginning Shut Down Procedure------------------------"<<std::endl;
     fans->TurnOff();
+    drill->TurnOff();//redundancy
     electromagnets->TurnOff();
     Sleep(1000);
 }

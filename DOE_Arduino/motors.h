@@ -1,3 +1,5 @@
+#include <Encoder.h>
+
 class motor {
   private:
     double GR;//gear ratio
@@ -10,13 +12,16 @@ class motor {
     bool target_reached = true;
 
   public:
+    int buffer_count = 0;
+    int motor_speed = 255;
     long cur_pos = 0;
     long des_pos = 0;
     long max_pos = 0;
     Encoder *quad;
-    int switch_home, switch_max;
+    int switch_min, switch_max;
+    bool using_switch_min, using_switch_max;
 
-    motor(const char* label, int in1, int in2, int quad1, int quad2, int switch_home, int switch_max, int CPR, int GR, int MM_PER_ROT)
+    motor(const char* label, int in1, int in2, int quad1, int quad2, int switch_min, int switch_max, int CPR, int GR, int MM_PER_ROT, bool using_min_switch, bool using_max_switch)
     {
       //pins:
       this->label = label;
@@ -24,22 +29,26 @@ class motor {
       this->in2 = in2;
       this->quad1 = quad1;
       this->quad2 = quad2;
-      this->switch_home = switch_home;
+      this->switch_min = switch_min;
       this->switch_max = switch_max;
+      this->using_switch_min = using_switch_min;
+      this->using_switch_max = using_switch_max;
       //modifiers:
       this->CPR = CPR;
       this->GR = GR;
       this->MM_PER_ROT = MM_PER_ROT;
-      //this->max_pos = (max_pos_mm * CPR * GR) / MM_PER_ROT;
-      this->max_pos = 150000;//temporary variable
+      this->max_pos = 150 * CPR * GR; //temporary maximum - calibrated during homing
 
+      motor_speed = 255;
+      buffer_count = GR * CPR * 0.5;
       pinMode(in1, OUTPUT);
       pinMode(in2, OUTPUT);
-      pinMode(switch_home, INPUT);
-      pinMode(switch_max, INPUT);
+      pinMode(switch_min, INPUT_PULLUP);
+      pinMode(switch_max, INPUT_PULLUP);
 
       quad = new Encoder(quad1, quad2);
 
+      //start in off position:
       digitalWrite(in1, LOW);
       digitalWrite(in2, LOW);
     }
@@ -48,14 +57,12 @@ class motor {
       double rotations = goal_mm / MM_PER_ROT;
       des_pos = rotations * GR * CPR;
       target_reached = false;
-      /*
-        int buffer_count = GR*CPR;
 
-        if (des_pos - buffer_count < 0)
-        des_pos = 0;
-        if (des_pos + buffer_count> max_pos)
-        des_pos = max_pos;
-      */
+      //add buffer to avoid bumping into pins at edges
+      if (des_pos < buffer_count)
+        des_pos = buffer_count;
+      if (des_pos > max_pos - buffer_count)
+        des_pos = max_pos - buffer_count;
     }
 
     void update_motor() {
@@ -63,22 +70,22 @@ class motor {
       cur_pos = quad->read();
 
       //limit switches:
-      /*
-        if (!digitalRead(switch_home)) {//if a voltage is not registered, the switch has been activated (or there is a miswiring)
+
+      if (using_switch_min && digitalRead(switch_min)) {//if a voltage is not registered, the switch has been activated (or there is a miswiring)
         target_reached = true;
         cur_pos = 0;//recalibrate
         quad->write(0);
         des_pos = cur_pos;
         stop_motor();
-        }
-        if (!digitalRead(switch_max)) {
+      }
+      if (using_switch_max && digitalRead(switch_max)) {
         target_reached = true;
         max_pos = cur_pos;//recalibrate
         quad->write(cur_pos);
         des_pos = cur_pos;
         stop_motor();
-        }
-      */
+      }
+
       //targeting:
       if (!target_reached) {//move towards target
         if (cur_pos + overshoot < des_pos && cur_pos + overshoot < max_pos)
@@ -103,16 +110,16 @@ class motor {
       digitalWrite(in2, LOW);
     }
     void move_forward() {
-      analogWrite(in1, 0);
-      analogWrite(in2, 255);
-      //digitalWrite(in1, LOW);
-      //digitalWrite(in2, HIGH);
+      //analogWrite(in1, 0);
+      //analogWrite(in2, motor_speed);
+      digitalWrite(in1, LOW);
+      digitalWrite(in2, HIGH);
     }
-    void move_back() {
-      analogWrite(in2, 0);
-      analogWrite(in1, 255);
-      //digitalWrite(in2, LOW);
-      //digitalWrite(in1, HIGH);
+    void move_back() {// axis_PWM : int dir, float motor_PWM - dir +/-, motor_speed 0-255
+      //analogWrite(in2, 0);
+      //analogWrite(in1, motor_speed);
+      digitalWrite(in2, LOW);
+      digitalWrite(in1, HIGH);
     }
-    
+    //Z transform for PD control for position
 };

@@ -31,3 +31,16 @@ void Gantry::HomeGantry() {
     std::cout<<"Homing Gantry";
     arduino->SendCommand(Arduino::HOME);
 }
+
+void Gantry::SetGantryXSpeed(const char *spX) {
+    std::cout<<"Setting X Speed %";
+    arduino->SendLongCommand(Arduino::SET_X_PERCENT, spX);
+}
+void Gantry::SetGantryYSpeed(const char *spY) {
+    std::cout<<"Setting Y Speed %";
+    arduino->SendLongCommand(Arduino::SET_Y_PERCENT, spY);
+}
+void Gantry::SetGantryZSpeed(const char *spZ) {
+    std::cout<<"Setting Z Speed %";
+    arduino->SendLongCommand(Arduino::SET_Z_PERCENT, spZ);
+}
