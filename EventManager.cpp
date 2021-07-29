@@ -36,6 +36,8 @@ void EventManager::RunNextCommand() {
             countdown = 30;
             break;
         case TOGGLE_DRILL:
+            //gantry->MoveGantryX("250");
+            //ManualStall();
             /*std::cout<<"------------------------     Activating Drill     ------------------------"<<std::endl;
             ManualStall();
             drill->TurnOn();
