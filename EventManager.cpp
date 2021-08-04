@@ -31,11 +31,16 @@ void EventManager::RunNextCommand() {
         case HOMING:
             std::cout<<"------------------------Beginning Homing Procedure------------------------"<<std::endl;
             ManualStall();
-            gantry->HomeGantry();
+            gantry->MoveGantryX("25");
+            //gantry->MoveGantryY("25");
+            //gantry->HomeGantry();
             ManualStall();
-            countdown = 30;
+            //countdown = 30;
             break;
         case TOGGLE_DRILL:
+            gantry->MoveGantryX("0");
+            //gantry->MoveGantryY("0");
+            ManualStall();
             //gantry->MoveGantryX("250");
             //ManualStall();
             /*std::cout<<"------------------------     Activating Drill     ------------------------"<<std::endl;

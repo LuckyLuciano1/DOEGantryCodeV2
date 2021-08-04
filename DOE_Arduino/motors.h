@@ -113,16 +113,16 @@ class motor {
       digitalWrite(in2, LOW);
     }
     void move_forward() {
-      //analogWrite(in1, 0);
-      //analogWrite(in2, motor_speed);
-      digitalWrite(in1, LOW);
-      digitalWrite(in2, HIGH);
+      analogWrite(in1, 0);
+      analogWrite(in2, 255);
+      //digitalWrite(in1, LOW);
+      //digitalWrite(in2, HIGH);
     }
     void move_back() {// axis_PWM : int dir, float motor_PWM - dir +/-, motor_speed 0-255
-      //analogWrite(in2, 0);
-      //analogWrite(in1, motor_speed);
-      digitalWrite(in2, LOW);
-      digitalWrite(in1, HIGH);
+      analogWrite(in2, 0);
+      analogWrite(in1, 255);
+      //digitalWrite(in2, LOW);
+      //digitalWrite(in1, HIGH);
     }
     //Z transform for PD control for position
 };

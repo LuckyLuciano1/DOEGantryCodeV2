@@ -107,7 +107,7 @@ bool homing_sequence() {
   //find max:
   while (!digitalRead(XMAX)) {
     motorX1.cur_pos = motorX1.quad->read();
-print_motor();
+    print_motor();
     //if any other switches are hit, stop and return error:
     if (switch_check(XMAX)) {
       motorX1.stop_motor();
@@ -149,15 +149,15 @@ print_motor();
   motorY2.stop_motor();
   motorY1.quad->write(0);
   motorY2.quad->write(0);
-  /*
-    //then move away from the limit switch so that it is not triggered:
-    motorY1.move_forward();
-    motorY2.move_forward();
-    while (motorY1.cur_pos < motorY1.buffer_count) {
-      motorY1.cur_pos = motorY1.quad->read();
-      motorY2.cur_pos = motorY2.quad->read();
-    }
-  */
+
+  //then move away from the limit switch so that it is not triggered:
+  motorY1.move_forward();
+  motorY2.move_forward();
+  while (motorY1.cur_pos < motorY1.buffer_count) {
+    motorY1.cur_pos = motorY1.quad->read();
+    motorY2.cur_pos = motorY2.quad->read();
+  }
+
   //find max:
   motorY1.move_forward();
   motorY2.move_forward();
@@ -168,11 +168,11 @@ print_motor();
     motorY2.cur_pos = motorY2.quad->read();
 
     //if any other switches are hit, stop and return error:
-    /*if (switch_check(YMAX)) {
+    if (switch_check(YMAX)) {
       motorY1.stop_motor();
       motorY2.stop_motor();
       return false;
-      }*/
+    }
   }
   //on finding max, update position:
   motorY1.stop_motor();

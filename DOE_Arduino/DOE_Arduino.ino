@@ -28,19 +28,19 @@ enum ARDUINO_REPORTS {//periodic reports sent to computer
 };
 #define ERR_PIN 12
 
-#define ELECTROMAGNETS 5
-#define DRILL 6
-#define FANS 7
+#define ELECTROMAGNETS 40
+#define DRILL 42
+#define FANS 44
 
 //motor pins:
-#define Y2PWM1 A2
-#define Y2PWM2 A3
-#define Y1PWM1 A4
-#define Y1PWM2 A5
-#define X1PWM1 A6
-#define X1PWM2 A7
-#define Z1PWM1 A8
-#define Z1PWM2 A9
+#define Z1PWM1 4
+#define Z1PWM2 5
+#define X1PWM1 6
+#define X1PWM2 7
+#define Y1PWM1 8
+#define Y1PWM2 9
+#define Y2PWM1 10
+#define Y2PWM2 11
 
 #define Y2QUAD1 2
 #define Y2QUAD2 3
@@ -252,15 +252,15 @@ bool homing_sequence() {
   motorY2.stop_motor();
   motorY1.quad->write(0);
   motorY2.quad->write(0);
-  /*
-    //then move away from the limit switch so that it is not triggered:
-    motorY1.move_forward();
-    motorY2.move_forward();
-    while (motorY1.cur_pos < motorY1.buffer_count) {
-      motorY1.cur_pos = motorY1.quad->read();
-      motorY2.cur_pos = motorY2.quad->read();
-    }
-  */
+
+  //then move away from the limit switch so that it is not triggered:
+  motorY1.move_forward();
+  motorY2.move_forward();
+  while (motorY1.cur_pos < motorY1.buffer_count) {
+    motorY1.cur_pos = motorY1.quad->read();
+    motorY2.cur_pos = motorY2.quad->read();
+  }
+
   //find max:
   motorY1.move_forward();
   motorY2.move_forward();
@@ -270,11 +270,11 @@ bool homing_sequence() {
     motorY2.cur_pos = motorY2.quad->read();
 
     //if any other switches are hit, stop and return error:
-    /*if (switch_check(YMAX)) {
+    if (switch_check(YMAX)) {
       motorY1.stop_motor();
       motorY2.stop_motor();
       return false;
-      }*/
+    }
   }
   //on finding max, update position:
   motorY1.stop_motor();
