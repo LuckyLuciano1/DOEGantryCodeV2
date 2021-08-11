@@ -1,8 +1,8 @@
-#define xmin 30
-#define xmax 32
+#define zmin 30
+#define ymax 32
 #define ymin 34
-#define ymax 36
-#define zmin 38
+#define xmax 36
+#define xmin 38
 
 void setup() {
   // put your setup code here, to run once:
