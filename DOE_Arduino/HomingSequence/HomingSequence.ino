@@ -1,20 +1,18 @@
 #include "motors.h"
 
-#define ERR_PIN 12
-
-#define ELECTROMAGNETS 5
-#define DRILL 6
-#define FANS 7
+#define ELECTROMAGNETS 44
+#define DRILL 42
+#define FANS 40
 
 //motor pins:
-#define Y2PWM1 A2
-#define Y2PWM2 A3
-#define Y1PWM1 A4
-#define Y1PWM2 A5
-#define X1PWM1 A6
-#define X1PWM2 A7
-#define Z1PWM1 A8
-#define Z1PWM2 A9
+#define Z1PWM1 4
+#define Z1PWM2 5
+#define X1PWM1 6
+#define X1PWM2 7
+#define Y1PWM1 8
+#define Y1PWM2 9
+#define Y2PWM1 10
+#define Y2PWM2 11
 
 #define Y2QUAD1 2
 #define Y2QUAD2 3
@@ -25,11 +23,11 @@
 #define Z1QUAD1 21
 #define Z1QUAD2 20
 
-#define XMIN 30
-#define XMAX 32
+#define XMIN 38
+#define XMAX 36
 #define YMIN 34
-#define YMAX 36
-#define ZMIN 38
+#define YMAX 32
+#define ZMIN 30
 
 //motor specs:
 int pololu_CPR = 64;

@@ -26,11 +26,11 @@ enum ARDUINO_REPORTS {//periodic reports sent to computer
   HOMING_COMPLETE,
   HOMING_FAILED
 };
-#define ERR_PIN 12
 
-#define ELECTROMAGNETS 40
+//pin assignment:
+#define ELECTROMAGNETS 44
 #define DRILL 42
-#define FANS 44
+#define FANS 40
 
 //motor pins:
 #define Z1PWM1 4
@@ -42,41 +42,32 @@ enum ARDUINO_REPORTS {//periodic reports sent to computer
 #define Y2PWM1 10
 #define Y2PWM2 11
 
-#define Y2QUAD1 2
-#define Y2QUAD2 3
-#define X1QUAD1 18
-#define X1QUAD2 16
-#define Y1QUAD1 19
-#define Y1QUAD2 17
-#define Z1QUAD1 21
-#define Z1QUAD2 20
+#define Y2encoder1 2
+#define Y2encoder2 3
+#define X1encoder1 18
+#define X1encoder2 16
+#define Y1encoder1 19
+#define Y1encoder2 17
+#define Z1encoder1 21
+#define Z1encoder2 20
 
-#define XMIN 30
-#define XMAX 32
+#define XMIN 38
+#define XMAX 36
 #define YMIN 34
-#define YMAX 36
-#define ZMIN 38
+#define YMAX 32
+#define ZMIN 30
 
-//motor specs:
-int pololu_CPR = 64;
-int pololu_GR = 30;
-int pololu_MM_PER_ROT = 5;
-int maxon_CPR = 500;
-int maxon_GR = 308;
-int maxon_MM_PER_ROT = 93;
-
-motor motorZ1("Z1", Z1PWM1, Z1PWM2, Z1QUAD1, Z1QUAD2, ZMIN, NULL, maxon_GR, maxon_GR, maxon_MM_PER_ROT, true, false);
-motor motorX1("X1", X1PWM1, X1PWM2, X1QUAD1, X1QUAD2, XMIN, XMAX, pololu_GR, pololu_CPR, pololu_MM_PER_ROT, true , true);
-motor motorY1("Y1", Y1PWM1, Y1PWM2, Y1QUAD1, Y1QUAD2, YMIN, YMAX, pololu_GR, pololu_CPR, pololu_MM_PER_ROT, true , true);
-motor motorY2("Y2", Y2PWM1, Y2PWM2, Y2QUAD1, Y2QUAD2, YMIN, YMAX, pololu_GR, pololu_CPR, pololu_MM_PER_ROT, true , true);
+//motor initialization:
+motor motorZ1("Z1", Z1PWM1, Z1PWM2, Z1encoder1, Z1encoder2, ZMIN, NULL, MAXON353301);
+motor motorX1("X1", X1PWM1, X1PWM2, X1encoder1, X1encoder2, XMIN, XMAX, POLOLU37D);
+motor motorY1("Y1", Y1PWM1, Y1PWM2, Y1encoder1, Y1encoder2, YMIN, YMAX, POLOLU37D);
+motor motorY2("Y2", Y2PWM1, Y2PWM2, Y2encoder1, Y2encoder2, YMIN, YMAX, POLOLU37D);
 
 void setup() {
   Serial.begin(9600);
   pinMode(ELECTROMAGNETS, OUTPUT);
   pinMode(DRILL, OUTPUT);
   pinMode(FANS, OUTPUT);
-
-  pinMode(ERR_PIN, OUTPUT);
 }
 
 void loop() {
@@ -138,19 +129,19 @@ void loop() {
       double PWM_value = (value / 100.0) * 255.0;
       motorZ1.motor_speed = PWM_value;
     }
-    else if (incomingByte == CLOSE + char_offset) {
+    else if (incomingByte == CLOSE + char_offset) {  
+      motorX1.brake();
+      motorY1.brake();
+      motorY2.brake();
+      motorZ1.brake();
       digitalWrite(FANS, LOW);
       digitalWrite(DRILL, LOW);
       digitalWrite(ELECTROMAGNETS, LOW);
-      motorX1.stop_motor();
-      motorY1.stop_motor();
-      motorY2.stop_motor();
-      motorZ1.stop_motor();
     }
     else if (incomingByte == HOME + char_offset) {
       bool error = homing_sequence();//return fail/success error code here
-      if (!error)
-        digitalWrite(ERR_PIN, HIGH);
+      //if (!error)
+      //  digitalWrite(ERR_PIN, HIGH);
     }
   }
 }
@@ -195,40 +186,40 @@ bool homing_sequence() {
   while (!digitalRead(XMIN)) {
     //if any other switches are hit, stop and return error:
     if (switch_check(XMIN)) {
-      motorX1.stop_motor();
+      motorX1.brake();
       return false;
     }
   }
   //on finding 0, update position:
-  motorX1.stop_motor();
-  motorX1.quad->write(0);
+  motorX1.brake();
+  motorX1.encoder->write(0);
 
   //then move away from the limit switch so that it is not triggered:
   motorX1.move_forward();
   while (motorX1.cur_pos < motorX1.buffer_count) {
-    motorX1.cur_pos = motorX1.quad->read();
+    motorX1.cur_pos = motorX1.encoder->read();
   }
 
   //find max:
   while (!digitalRead(XMAX)) {
-    motorX1.cur_pos = motorX1.quad->read();
+    motorX1.cur_pos = motorX1.encoder->read();
 
     //if any other switches are hit, stop and return error:
     if (switch_check(XMAX)) {
-      motorX1.stop_motor();
+      motorX1.brake();
       return false;
     }
   }
   //on finding max, update position:
-  motorX1.stop_motor();
+  motorX1.brake();
   motorX1.max_pos = motorX1.cur_pos;
 
   //then move away from the limit switch so that it is not triggered:
   motorX1.move_back();
   while (motorX1.max_pos - motorX1.cur_pos < motorX1.buffer_count) {
-    motorX1.cur_pos = motorX1.quad->read();
+    motorX1.cur_pos = motorX1.encoder->read();
   }
-  motorX1.stop_motor();
+  motorX1.brake();
 
   //then set a goal to move back to 0 after homing:
   motorX1.set_goal(0);
@@ -242,23 +233,23 @@ bool homing_sequence() {
   while (!digitalRead(YMIN)) {
     //if any other switches are hit, stop and return error:
     if (switch_check(YMIN)) {
-      motorY1.stop_motor();
-      motorY2.stop_motor();
+      motorY1.brake();
+      motorY2.brake();
       return false;
     }
   }
   //on finding 0, update position:
-  motorY1.stop_motor();
-  motorY2.stop_motor();
-  motorY1.quad->write(0);
-  motorY2.quad->write(0);
+  motorY1.brake();
+  motorY2.brake();
+  motorY1.encoder->write(0);
+  motorY2.encoder->write(0);
 
   //then move away from the limit switch so that it is not triggered:
   motorY1.move_forward();
   motorY2.move_forward();
   while (motorY1.cur_pos < motorY1.buffer_count) {
-    motorY1.cur_pos = motorY1.quad->read();
-    motorY2.cur_pos = motorY2.quad->read();
+    motorY1.cur_pos = motorY1.encoder->read();
+    motorY2.cur_pos = motorY2.encoder->read();
   }
 
   //find max:
@@ -266,19 +257,19 @@ bool homing_sequence() {
   motorY2.move_forward();
   //delay(125);
   while (!digitalRead(YMAX)) {
-    motorY1.cur_pos = motorY1.quad->read();
-    motorY2.cur_pos = motorY2.quad->read();
+    motorY1.cur_pos = motorY1.encoder->read();
+    motorY2.cur_pos = motorY2.encoder->read();
 
     //if any other switches are hit, stop and return error:
     if (switch_check(YMAX)) {
-      motorY1.stop_motor();
-      motorY2.stop_motor();
+      motorY1.brake();
+      motorY2.brake();
       return false;
     }
   }
   //on finding max, update position:
-  motorY1.stop_motor();
-  motorY2.stop_motor();
+  motorY1.brake();
+  motorY2.brake();
   return false;
   motorY1.max_pos = motorY1.cur_pos;
   motorY2.max_pos = motorY2.cur_pos;
@@ -287,11 +278,11 @@ bool homing_sequence() {
   motorY1.move_back();
   motorY2.move_back();
   while (motorY1.max_pos - motorY1.cur_pos < motorY1.buffer_count) {
-    motorY1.cur_pos = motorY1.quad->read();
-    motorY2.cur_pos = motorY2.quad->read();
+    motorY1.cur_pos = motorY1.encoder->read();
+    motorY2.cur_pos = motorY2.encoder->read();
   }
-  motorY1.stop_motor();
-  motorY2.stop_motor();
+  motorY1.brake();
+  motorY2.brake();
 
   //then move back to 0 after homing sequence:
   motorY1.set_goal(0);

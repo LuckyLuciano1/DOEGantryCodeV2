@@ -1,96 +1,126 @@
 #include <Encoder.h>
+#include <PID_v1.h>
+
+//type-specific config variables:
+int pololu_CPR = 64;
+int pololu_GR = 30;
+int pololu_MM_PER_ROT = 5;
+//int pololu_overshoot = 384 * 1.7;
+int maxon_CPR = 500;
+int maxon_GR = 308;
+int maxon_MM_PER_ROT = 93;
+//int maxon_overshoot = 500;//unconfigured
+
+enum MOTOR_TYPE {
+  POLOLU37D,
+  MAXON353301
+};
 
 class motor {
   private:
     double GR;//gear ratio
     double CPR;//encoder counts per rotation
-    double MM_PER_ROT = 5;
-    const int overshoot = 384 * 1.7; //when within 384 count (aka 0.5mm), stop (1.7 is a tuning value)
+    double MM_PER_ROT;//linear travel per rotation (mm)
 
-    int in1, in2, quad1, quad2;
+    int PWM1, PWM2;//, quad1, quad2;//motor pins
     const char* label;
-    bool target_reached = true;
 
   public:
     int buffer_count = 0;
     int motor_speed = 255;
+
     long cur_pos = 0;
-    long des_pos = 0;
     long max_pos = 0;
-    Encoder *quad;
-    int switch_min, switch_max;
+    Encoder *encoder;
+
+    int switch_min, switch_max;//switch pins
     bool using_switch_min, using_switch_max;
 
-    motor(const char* label, int in1, int in2, int quad1, int quad2, int switch_min, int switch_max, int CPR, int GR, int MM_PER_ROT, bool using_min_switch, bool using_max_switch)
+    motor(const char* label, int PWM1, int PWM2, int quad1, int quad2, int switch_min, int switch_max, int motor_type)
     {
-      //pins:
       this->label = label;
-      this->in1 = in1;
-      this->in2 = in2;
-      this->quad1 = quad1;
-      this->quad2 = quad2;
+
+      //pins:
+      this->PWM1 = PWM1;
+      this->PWM2 = PWM2;
       this->switch_min = switch_min;
       this->switch_max = switch_max;
-      this->using_switch_min = using_switch_min;
-      this->using_switch_max = using_switch_max;
-      //modifiers:
-      this->CPR = CPR;
-      this->GR = GR;
-      this->MM_PER_ROT = MM_PER_ROT;
-      this->max_pos = 150 * CPR * GR; //temporary maximum - calibrated during homing
+      encoder = new Encoder(quad1, quad2);
 
+      if (switch_min != NULL)
+        using_switch_min = true;
+      else
+        using_switch_min = false;
+      if (switch_max != NULL)
+        using_switch_max = true;
+      else
+        using_switch_max = false;
+
+      //motor modifiers:
+      if (motor_type == POLOLU37D) {
+        CPR = pololu_CPR;
+        GR = pololu_GR;
+        MM_PER_ROT = pololu_MM_PER_ROT;
+      }
+      else if (motor_type == MAXON353301) {
+        CPR = maxon_CPR;
+        GR = maxon_GR;
+        MM_PER_ROT = maxon_MM_PER_ROT;
+      }
+
+      max_pos = 150 * CPR * GR; //temporary maximum - calibrated during homing
       motor_speed = 255;
       buffer_count = GR * CPR * 0.5;
-      pinMode(in1, OUTPUT);
-      pinMode(in2, OUTPUT);
-      
+
+      pinMode(PWM1, OUTPUT);
+      pinMode(PWM2, OUTPUT);
+
       if (using_switch_min)
         pinMode(switch_min, INPUT_PULLUP);
       if (using_switch_max)
         pinMode(switch_max, INPUT_PULLUP);
 
-      quad = new Encoder(quad1, quad2);
-
-      //start in off position:
-      digitalWrite(in1, LOW);
-      digitalWrite(in2, LOW);
+      //start motor in off position:
+      digitalWrite(PWM1, LOW);
+      digitalWrite(PWM2, LOW);
     }
+    /*
+        void set_goal(double goal_mm) {//from range of (ex) 0 to 1500mm
+          double rotations = goal_mm / MM_PER_ROT;
+          des_pos = rotations * GR * CPR;
+          target_reached = false;
 
-    void set_goal(double goal_mm) { //from range of (ex) 0 to 1500mm
-      double rotations = goal_mm / MM_PER_ROT;
-      des_pos = rotations * GR * CPR;
-      target_reached = false;
-
-      //add buffer to avoid bumping into pins at edges
-      if (des_pos < buffer_count)
-        des_pos = buffer_count;
-      if (des_pos > max_pos - buffer_count)
-        des_pos = max_pos - buffer_count;
-    }
-
+          //add buffer to avoid bumping into pins at edges
+          if (des_pos < buffer_count)
+            des_pos = buffer_count;
+          if (des_pos > max_pos - buffer_count)
+            des_pos = max_pos - buffer_count;
+        }
+    */
     void update_motor() {
       //update current position:
-      cur_pos = quad->read();
+      cur_pos = encoder->read();
 
       //limit switches:
-/*
-      if (using_switch_min && digitalRead(switch_min)) {//if a voltage is not registered, the switch has been activated (or there is a miswiring)
-        target_reached = true;
-        cur_pos = 0;//recalibrate
-        quad->write(0);
-        des_pos = cur_pos;
-        stop_motor();
-      }
-      if (using_switch_max && digitalRead(switch_max)) {
-        target_reached = true;
-        max_pos = cur_pos;//recalibrate
-        quad->write(cur_pos);
-        des_pos = cur_pos;
-        stop_motor();
-      }
-*/
+      /*
+            if (using_switch_min && digitalRead(switch_min)) {//if a voltage is not registered, the switch has been activated (or there is a miswiring)
+              target_reached = true;
+              cur_pos = 0;//recalibrate
+              encoder->write(0);
+              des_pos = cur_pos;
+              stop_motor();
+            }
+            if (using_switch_max && digitalRead(switch_max)) {
+              target_reached = true;
+              max_pos = cur_pos;//recalibrate
+              encoder->write(cur_pos);
+              des_pos = cur_pos;
+              stop_motor();
+            }
+      */
       //targeting:
-      if (!target_reached) {//move towards target
+      /*
+        if (!target_reached) {//move towards target
         if (cur_pos + overshoot < des_pos && cur_pos + overshoot < max_pos)
           move_forward();
         else if (cur_pos - overshoot > des_pos && cur_pos - overshoot > 0)
@@ -99,30 +129,40 @@ class motor {
           target_reached = true;
           stop_motor();
         }
-      }
+        }
+      */
     }
 
-    int get_goal() {
-      return des_pos;
+    void set_target(int target_pos, int target_vel) {
+
     }
-    long get_pos() {
-      return cur_pos;
+    void SetPWM(bool dir, uint8_t pwm) {
+      if (dir) {          //right
+        analogWrite(PWM1, 0);
+        delayMicroseconds(100);
+        analogWrite(PWM2, pwm);
+      }
+      else {              //left
+        analogWrite(PWM2, 0);
+        delayMicroseconds(100);
+        analogWrite(PWM1, pwm);
+      }
     }
-    void stop_motor() {
-      digitalWrite(in1, LOW);
-      digitalWrite(in2, LOW);
+    void brake() {
+      analogWrite(PWM1, LOW);
+      analogWrite(PWM2, LOW);
     }
-    void move_forward() {
-      analogWrite(in1, 0);
-      analogWrite(in2, 255);
-      //digitalWrite(in1, LOW);
-      //digitalWrite(in2, HIGH);
-    }
-    void move_back() {// axis_PWM : int dir, float motor_PWM - dir +/-, motor_speed 0-255
-      analogWrite(in2, 0);
-      analogWrite(in1, 255);
-      //digitalWrite(in2, LOW);
-      //digitalWrite(in1, HIGH);
-    }
-    //Z transform for PD control for position
+    /*
+      void move_forward() {
+      analogWrite(PWM1, 0);
+      analogWrite(PWM2, 255);
+      //digitalWrite(PWM1, LOW);
+      //digitalWrite(PWM2, HIGH);
+      }
+      void move_back() {// axis_PWM : int dir, float motor_PWM - dir +/-, motor_speed 0-255
+      analogWrite(PWM2, 0);
+      analogWrite(PWM1, 255);
+      //digitalWrite(PWM2, LOW);
+      //digitalWrite(PWM1, HIGH);
+      }*/
 };
