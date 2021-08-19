@@ -15,6 +15,11 @@ enum MOTOR_TYPE {
   POLOLU37D,
   MAXON353301
 };
+enum DIRECTION {
+  BACK,
+  FORWARD
+};
+int GANTRY_FAST_TRAVEL = 5;//standard input velocity for motors
 
 class motor {
   private:
@@ -26,8 +31,8 @@ class motor {
     const char* label;
 
   public:
-    int buffer_count = 0;
-    int motor_speed = 255;
+    int buffer_count;//padding between target position and actual position to make sure the system does not overshoot. used in homing sequence.
+    int motor_speed;
 
     long cur_pos = 0;
     long max_pos = 0;
@@ -84,19 +89,7 @@ class motor {
       digitalWrite(PWM1, LOW);
       digitalWrite(PWM2, LOW);
     }
-    /*
-        void set_goal(double goal_mm) {//from range of (ex) 0 to 1500mm
-          double rotations = goal_mm / MM_PER_ROT;
-          des_pos = rotations * GR * CPR;
-          target_reached = false;
 
-          //add buffer to avoid bumping into pins at edges
-          if (des_pos < buffer_count)
-            des_pos = buffer_count;
-          if (des_pos > max_pos - buffer_count)
-            des_pos = max_pos - buffer_count;
-        }
-    */
     void update_motor() {
       //update current position:
       cur_pos = encoder->read();
@@ -133,36 +126,37 @@ class motor {
       */
     }
 
+    /*
+        void set_goal(double goal_mm) {//from range of (ex) 0 to 1500mm
+          double rotations = goal_mm / MM_PER_ROT;
+          des_pos = rotations * GR * CPR;
+          target_reached = false;
+
+          //add buffer to avoid bumping into pins at edges
+          if (des_pos < buffer_count)
+            des_pos = buffer_count;
+          if (des_pos > max_pos - buffer_count)
+            des_pos = max_pos - buffer_count;
+        }
+    */
     void set_target(int target_pos, int target_vel) {
 
     }
-    void SetPWM(bool dir, uint8_t pwm) {
-      if (dir) {          //right
-        analogWrite(PWM1, 0);
-        delayMicroseconds(100);
-        analogWrite(PWM2, pwm);
-      }
-      else {              //left
+    void set_PWM(bool dir, uint8_t pwm) {
+      if (dir == FORWARD) {    //left
         analogWrite(PWM2, 0);
         delayMicroseconds(100);
         analogWrite(PWM1, pwm);
       }
+      else if (dir == BACK) {  //right
+        analogWrite(PWM1, 0);
+        delayMicroseconds(100);
+        analogWrite(PWM2, pwm);
+      }
     }
+
     void brake() {
       analogWrite(PWM1, LOW);
       analogWrite(PWM2, LOW);
     }
-    /*
-      void move_forward() {
-      analogWrite(PWM1, 0);
-      analogWrite(PWM2, 255);
-      //digitalWrite(PWM1, LOW);
-      //digitalWrite(PWM2, HIGH);
-      }
-      void move_back() {// axis_PWM : int dir, float motor_PWM - dir +/-, motor_speed 0-255
-      analogWrite(PWM2, 0);
-      analogWrite(PWM1, 255);
-      //digitalWrite(PWM2, LOW);
-      //digitalWrite(PWM1, HIGH);
-      }*/
 };

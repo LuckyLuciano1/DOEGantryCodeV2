@@ -8,7 +8,7 @@
 #include "EventManager.h"
 
 int main() {
-    EventManager eventManager(R"(\\.\COM17)");
+    EventManager eventManager(R"(\\.\COM8)");
 
     eventManager.StartUp();
 

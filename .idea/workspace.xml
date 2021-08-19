@@ -12,10 +12,16 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="0da28ab1-dca0-4a79-852b-1aa4211cb5ab" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/.name" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.name" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/DOE_Arduino/DOE_Arduino.ino" beforeDir="false" afterPath="$PROJECT_DIR$/DOE_Arduino/DOE_Arduino.ino" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/DOE_Arduino/HomingSequence/HomingSequence.ino" beforeDir="false" afterPath="$PROJECT_DIR$/DOE_Arduino/HomingSequence/HomingSequence.ino" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DOE_Arduino/motors.h" beforeDir="false" afterPath="$PROJECT_DIR$/DOE_Arduino/motors.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/EventManager.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/EventManager.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/DOEGantryV2.dir/EventManager.cpp.obj" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/DOEGantryV2.dir/EventManager.cpp.obj" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/DOEGantryV2.dir/main.cpp.obj" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/DOEGantryV2.dir/main.cpp.obj" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/DOEGantryV2.dir/objects.a" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/DOEGantryV2.dir/objects.a" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/DOEGantryV2.exe" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/DOEGantryV2.exe" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cmake-build-debug/Testing/Temporary/LastTest.log" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/Testing/Temporary/LastTest.log" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main.cpp" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -92,6 +98,7 @@
       <workItem from="1627501229986" duration="5120000" />
       <workItem from="1627574701179" duration="3268000" />
       <workItem from="1629308795887" duration="116000" />
+      <workItem from="1629390470830" duration="2867000" />
     </task>
     <servers />
   </component>

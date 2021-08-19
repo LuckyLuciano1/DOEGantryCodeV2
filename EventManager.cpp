@@ -11,7 +11,7 @@ EventManager::EventManager(const char *portName) {
     eventCount = 0;
 
     std::cout << "Initializing Objects" << std::endl;
-    arduino = new Arduino(R"(\\.\COM17)");
+    arduino = new Arduino(portName);
 
     gantry = new Gantry(arduino);
     drill = new Drill(arduino);
@@ -31,16 +31,16 @@ void EventManager::RunNextCommand() {
         case HOMING:
             std::cout<<"------------------------Beginning Homing Procedure------------------------"<<std::endl;
             ManualStall();
-            gantry->MoveGantryX("25");
+            //gantry->MoveGantryX("25");
             //gantry->MoveGantryY("25");
-            //gantry->HomeGantry();
+            gantry->HomeGantry();
             ManualStall();
             //countdown = 30;
             break;
         case TOGGLE_DRILL:
-            gantry->MoveGantryX("0");
+            //gantry->MoveGantryX("0");
             //gantry->MoveGantryY("0");
-            ManualStall();
+            //ManualStall();
             //gantry->MoveGantryX("250");
             //ManualStall();
             /*std::cout<<"------------------------     Activating Drill     ------------------------"<<std::endl;
