@@ -14,18 +14,13 @@ private:
 public:
     explicit Gantry(Arduino *arduino);
 
-    void MoveGantry(const char* posX, const char* posY, const char* posZ);
+    void MoveGantry(float posXmm, float velXmms, float posYmm, float velYmms, float posZmm, float velZmms);
 
-    void MoveGantryX(const char* posX);
-    void MoveGantryY(const char* posY);
-    void MoveGantryZ(const char* posZ);
+    void MoveGantryX(float posXmm, float velXmms);
+    void MoveGantryY(float posYmm, float velYmms);
+    void MoveGantryZ(float posZmm, float velZmms);
 
     void HomeGantry();
-
-    void SetGantryXSpeed(const char* spX);
-    void SetGantryYSpeed(const char* spY);
-    void SetGantryZSpeed(const char* spZ);
 };
-
 
 #endif //DOEGANTRYV2_GANTRY_H

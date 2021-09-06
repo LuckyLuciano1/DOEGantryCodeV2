@@ -22,6 +22,7 @@ private:
 
     int countdown;
     int eventCount;
+
 public:
     bool exit;
 
@@ -33,6 +34,5 @@ public:
     void ManualStall();
     ~EventManager();
 };
-
 
 #endif //MAIN_CPP_EVENTMANAGER_H

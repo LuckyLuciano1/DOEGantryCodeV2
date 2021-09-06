@@ -8,12 +8,12 @@ Drill::Drill(Arduino *arduino) {
 void Drill::TurnOn() {
     std::cout<<"Turning drill on";
     state = true;
-    arduino->SendCommand(Arduino::TURN_DRILL_ON);
+    arduino->SendInt(Arduino::TURN_DRILL_ON);
 }
 
 void Drill::TurnOff() {
     std::cout<<"Turning drill off";
     state = false;
-    arduino->SendCommand(Arduino::TURN_DRILL_OFF);
+    arduino->SendInt(Arduino::TURN_DRILL_OFF);
 }
 

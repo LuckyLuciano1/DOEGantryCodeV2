@@ -8,12 +8,12 @@ Electromagnets::Electromagnets(Arduino *arduino) {
 void Electromagnets::TurnOn() {
     std::cout<<"Turning Electromagnets on";
     state = true;
-    arduino->SendCommand(Arduino::TURN_ELECTROMAGNETS_ON);
+    arduino->SendInt(Arduino::TURN_ELECTROMAGNETS_ON);
 }
 
 void Electromagnets::TurnOff() {
     std::cout<<"Turning Electromagnets off";
     state = false;
-    arduino->SendCommand(Arduino::TURN_ELECTROMAGNETS_OFF);
+    arduino->SendInt(Arduino::TURN_ELECTROMAGNETS_OFF);
 }
 

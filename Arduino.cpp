@@ -37,7 +37,7 @@ Arduino::Arduino(const char *portName) {
 
             //Set the parameters and check for their proper application
             if (!SetCommState(hSerial, &dcbSerialParams))
-                printf("ALERT: Could not set Serial Port parameters");
+                printf("ALERT: Could not set Serial Port parameters - ");
 
             //Set timeout parameters
             COMMTIMEOUTS timeouts = {0};
@@ -62,7 +62,42 @@ Arduino::Arduino(const char *portName) {
         }
     }
 }
+void Arduino::SendInt(int data){
+    union message{
+        int value;
+        byte b[sizeof(int)];
+    };
+    union message m{};
+    m.value = data;
 
+    std::cout<<"- sending value "<<m.value;
+    if (!WriteData(reinterpret_cast<const char *>(&m.b[0]), sizeof(int)))
+        std::cout << ", data failed to send." << std::endl;
+    else
+        std::cout << ", data successfully sent." << std::endl;
+}
+void Arduino::SendFloat(float data){
+    union message{
+        float value;
+        byte b[sizeof(float)];
+    };
+    union message m{};
+    m.value = data;
+
+    std::cout<<"- sending value "<<m.value;
+    if (!WriteData(reinterpret_cast<const char *>(&m.b[0]), sizeof(float)))
+        std::cout << ", data failed to send." << std::endl;
+    else
+        std::cout << ", data successfully sent." << std::endl;
+}
+void Arduino::SendChar(char data){
+    std::cout<<"- sending value "<<data;
+    if (!WriteData(&data, sizeof(char)))
+        std::cout << ", data failed to send." << std::endl;
+    else
+        std::cout << ", data successfully sent." << std::endl;
+}
+/*
 void Arduino::SendCommand(int command) {
     command += 65;
     char com = command;
@@ -97,9 +132,9 @@ void Arduino::SendLongCommand(int command, const char *data) {
         std::cout << "received no data back." << std::endl;
     else
         std::cout << "received back: " << buffer<<std::endl;
-}
+}*/
 
-bool Arduino::ReadData(char *buffer, unsigned int nbChar) {
+bool Arduino::ReadData(byte *buffer, unsigned int nbChar) {
     //Number of bytes we'll have read
     DWORD bytesRead;
     //Use the ClearCommError function to get status info on the Serial port
@@ -107,10 +142,10 @@ bool Arduino::ReadData(char *buffer, unsigned int nbChar) {
     //Check if there is something to read
     if (status.cbInQue > 0) {
         if(nbChar > status.cbInQue)
-            nbChar = status.cbInQue;
-
-        if (ReadFile(hSerial, buffer, nbChar, &bytesRead, nullptr))
+            return false;
+        if (ReadFile(hSerial, buffer, nbChar, &bytesRead, nullptr)) {
             return true;
+        }
     }
     return false;
 }
@@ -118,6 +153,7 @@ bool Arduino::ReadData(char *buffer, unsigned int nbChar) {
 bool Arduino::WriteData(const char *buffer, unsigned int nbChar) {
     DWORD bytesSend;
     //Try to write the buffer on the Serial port
+    std::cout<<", "<<sizeof buffer<<" bytes";
     if (!WriteFile(hSerial, buffer, nbChar, &bytesSend, nullptr)) {
         ClearCommError(hSerial, &errors, &status);
         return false;

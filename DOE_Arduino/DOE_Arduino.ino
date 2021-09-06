@@ -1,32 +1,8 @@
 #include "motors.h"
+//#include "serial.h"
+//#include <LiquidCrystal.h>
 
-enum ARDUINO_COMMANDS {//periodic controls sent to arduino
-  TURN_ELECTROMAGNETS_OFF,
-  TURN_ELECTROMAGNETS_ON,
-  TURN_DRILL_OFF,
-  TURN_DRILL_ON,
-  TURN_FANS_OFF,
-  TURN_FANS_ON,
-  SET_X_PERCENT,
-  SET_Y_PERCENT,
-  SET_Z_PERCENT,
-  HOME,
-  MOVE_X,
-  MOVE_Y,
-  MOVE_Z,
-  CLOSE
-};
 
-//note pin 39 on Arduino ADK appears to be faulty
-
-enum ARDUINO_REPORTS {//periodic reports sent to computer
-  NO_ERROR,
-  SWITCH_MIN_TRIGGERED,
-  SWITCH_MAX_TRIGGERED,
-  MOTOR_TARGET_REACHED,//followed by specific motor name
-  HOMING_COMPLETE,
-  HOMING_FAILED
-};
 
 //pin assignment:
 #define ELECTROMAGNETS 44
@@ -58,8 +34,10 @@ enum ARDUINO_REPORTS {//periodic reports sent to computer
 #define YMAX 32
 #define ZMIN 30
 
+void(* reset_arduino) (void) = 0;
+
 //motor initialization:
-motor motorZ1("Z1", Z1PWM1, Z1PWM2, Z1QUAD1, Z1QUAD2, ZMIN, NULL, MAXON353301);
+motor motorZ1("Z1", Z1PWM1, Z1PWM2, Z1QUAD1, Z1QUAD2, ZMIN, 0, MAXON353301);
 motor motorX1("X1", X1PWM1, X1PWM2, X1QUAD1, X1QUAD2, XMIN, XMAX, POLOLU37D);
 motor motorY1("Y1", Y1PWM1, Y1PWM2, Y1QUAD1, Y1QUAD2, YMIN, YMAX, POLOLU37D);
 motor motorY2("Y2", Y2PWM1, Y2PWM2, Y2QUAD1, Y2QUAD2, YMIN, YMAX, POLOLU37D);
@@ -72,6 +50,9 @@ void setup() {
   pinMode(FANS, OUTPUT);
 }
 
+int serial_status = AWAITING_NEW_COMMAND;
+int buffer_data = 0;
+
 void loop() {
   //update motors:
   motorX1.update_motor();
@@ -79,110 +60,128 @@ void loop() {
   motorY2.update_motor();
   motorZ1.update_motor();
 
-  //read new info from serial:
-  while (Serial.available() > 0) { // if any data available
-    char incomingByte = Serial.read(); // read byte
-    int char_offset = 65;
+  //if not awaiting positional info:
+  if (serial_status == AWAITING_NEW_COMMAND &&
+      Serial.available() >= 4) { //if any data available
 
-    if (incomingByte == TURN_ELECTROMAGNETS_ON + char_offset) {
-      digitalWrite(ELECTROMAGNETS, HIGH);
-    }
-    else if (incomingByte == TURN_ELECTROMAGNETS_OFF + char_offset) {
-      digitalWrite(ELECTROMAGNETS, LOW);
-    }
-    else if (incomingByte == TURN_DRILL_ON + char_offset) {
-      digitalWrite(DRILL, HIGH);
-    }
-    else if (incomingByte == TURN_DRILL_OFF + char_offset) {
-      digitalWrite(DRILL, LOW);
-    }
-    else if (incomingByte == TURN_FANS_ON + char_offset) {
-      digitalWrite(FANS, HIGH);
-    }
-    else if (incomingByte == TURN_FANS_OFF + char_offset) {
-      digitalWrite(FANS, LOW);
-    }
-    else if (incomingByte == MOVE_X + char_offset) {
-      int value = read_and_echo_serial();
-      motorX1.set_target(value, GANTRY_FAST_TRAVEL);//later modify to get velocity
-    }
-    else if (incomingByte == MOVE_Y + char_offset) {
-      int value = read_and_echo_serial();
-      motorY1.set_target(value, GANTRY_FAST_TRAVEL);
-      motorY2.set_target(value, GANTRY_FAST_TRAVEL);
-    }
-    else if (incomingByte == MOVE_Z + char_offset) {
-      int value = read_and_echo_serial();
-      motorZ1.set_target(value, GANTRY_FAST_TRAVEL);
-    }
-    else if (incomingByte == SET_X_PERCENT + char_offset) {
-      int value = read_and_echo_serial();
-      double PWM_value = (value / 100.0) * 255.0;
-      motorX1.motor_speed = PWM_value;
-    }
-    else if (incomingByte == SET_Y_PERCENT + char_offset) {
-      int value = read_and_echo_serial();
-      double PWM_value = (value / 100.0) * 255.0;
-      motorY1.motor_speed = PWM_value;
-      motorY2.motor_speed = PWM_value;
-    }
-    else if (incomingByte == SET_Z_PERCENT + char_offset) {
-      int value = read_and_echo_serial();
-      double PWM_value = (value / 100.0) * 255.0;
-      motorZ1.motor_speed = PWM_value;
-    }
-    else if (incomingByte == CLOSE + char_offset) {
-      motorX1.brake();
-      motorY1.brake();
-      motorY2.brake();
-      motorZ1.brake();
-      digitalWrite(FANS, LOW);
-      digitalWrite(DRILL, LOW);
-      digitalWrite(ELECTROMAGNETS, LOW);
-    }
-    else if (incomingByte == HOME + char_offset) {
-      bool error = homing_sequence();//return fail/success error code here
-      //if (!error)
-      //  digitalWrite(ERR_PIN, HIGH);
-    }
-  }
-}
+    message m{};//create union to store message
 
-int read_and_echo_serial() {
-  char incomingByte = Serial.read();
-  int value = 0;
-  while (incomingByte != '~') {                     //read the appended numeric value
-    if (incomingByte >= 48 && incomingByte <= 57) { //read data if valid
-      int i_incomingByte = incomingByte - '0';//char -> int
-      value *= 10;
-      value += i_incomingByte;
-    }
-    incomingByte = Serial.read();
-  }
-  //echo back values:
-  char b_value[256];
-  itoa(value, b_value, 10);
-  Serial.write(b_value);
-  return value;
-}
+    //read bytes in buffer into message to interpret as integer:
+    for (int x = 0; x < 4; x++)//4 is int byte# (default is 2 within arduino
+      m.b[x] = Serial.read();
+
+    //interpret data as an ARDUINO_COMMAND:
+    switch (m.i) {
+      //relays:
+      case TURN_ELECTROMAGNETS_OFF:
+        digitalWrite(ELECTROMAGNETS, LOW);
+        break;
+      case TURN_ELECTROMAGNETS_ON:
+        digitalWrite(ELECTROMAGNETS, HIGH);
+        break;
+      case TURN_DRILL_OFF:
+        digitalWrite(DRILL, LOW);
+        break;
+      case TURN_DRILL_ON:
+        digitalWrite(DRILL, HIGH);
+        break;
+      case TURN_FANS_OFF:
+        digitalWrite(FANS, LOW);
+        break;
+      case TURN_FANS_ON:
+        digitalWrite(FANS, HIGH);
+        break;
+      //motor commands:
+      case HOME:
+        if (homing_sequence())//send error code
+          send_int(HOMING_SUCCESSFUL);
+        else {
+          send_int(HOMING_FAILED);
+          exit_and_reset_arduino();
+        }
+        break;
+      case MOVE_X:
+        serial_status = GETTING_X_POS;
+        break;
+      case MOVE_Y:
+        serial_status = GETTING_Y_POS;
+        break;
+      case MOVE_Z:
+        serial_status = GETTING_Z_POS;
+        break;
+      //exit sequence:
+      case CLOSE:
+        exit_and_reset_arduino();
+        break;
+    }//switch
+  }//awaiting_new_command
+
+  else if (serial_status != AWAITING_NEW_COMMAND && Serial.available() >= 4) {//if next data is float (as of now, everything is):
+    //interpret sent data:
+    message m{};
+    for (int x = 0; x < 4; x++)
+      m.b[x] = Serial.read();
+
+    //send value to designated area:
+    switch (serial_status) {
+      case GETTING_X_POS:
+        buffer_data = m.f;                   //store data in buffer for next step
+        serial_status = GETTING_X_TARGET_VEL;//next, get vel data
+        break;
+      case GETTING_Y_POS:
+        buffer_data = m.f;
+        serial_status = GETTING_Y_TARGET_VEL;
+        break;
+      case GETTING_Z_POS:
+        buffer_data = m.f;
+        serial_status = GETTING_Z_TARGET_VEL;
+        break;
+      case GETTING_X_TARGET_VEL:
+        //move motor with sent velocity data and previously sent positional data:
+        motorX1.set_target(buffer_data, m.f);
+        serial_status = AWAITING_NEW_COMMAND;
+        break;
+      case GETTING_Y_TARGET_VEL:
+        motorY1.set_target(buffer_data, m.f);
+        motorY2.set_target(buffer_data, m.f);
+        serial_status = AWAITING_NEW_COMMAND;
+        break;
+      case GETTING_Z_TARGET_VEL:
+        motorZ1.set_target(buffer_data, m.f);
+        serial_status = AWAITING_NEW_COMMAND;
+        break;
+    }//switch
+  }//not awaiting new command if statement
+}//end loop
 
 bool switch_check(int given_switch) {
   //if any other switches besides the given switch are hit, return true, else return false:
-  if (digitalRead(XMIN) && given_switch != XMIN)
+  if (digitalRead(XMIN) && given_switch != XMIN){
+    send_int(MIN_X_HIT);
     return true;
-  if (digitalRead(XMAX) && given_switch != XMAX)
+  }
+  if (digitalRead(XMAX) && given_switch != XMAX){
+    send_int(MAX_X_HIT);
     return true;
-  if (digitalRead(YMIN) && given_switch != YMIN)
+  }
+  if (digitalRead(YMIN) && given_switch != YMIN){
+    send_int(MIN_Y_HIT);
     return true;
-  if (digitalRead(YMAX) && given_switch != YMAX)
+  }
+  if (digitalRead(YMAX) && given_switch != YMAX){
+    send_int(MAX_Y_HIT);
     return true;
-  if (digitalRead(ZMIN) && given_switch != ZMIN)
+  }
+  if (digitalRead(ZMIN) && given_switch != ZMIN){
+    send_int(MIN_Z_HIT);
     return true;
+  }
 
   return false;
 }
 
 bool homing_sequence() {
+  const int FULL_POWER = 255;
   //-----------------------------------------------------
   //x axis homing:
   //find 0:
@@ -199,14 +198,15 @@ bool homing_sequence() {
   motorX1.encoder->write(0);
 
   //then move away from the limit switch so that it is not triggered:
-  motorX1.set_PWM(FORWARD, 255);
-  while (motorX1.cur_pos < motorX1.buffer_count) {
-    motorX1.cur_pos = motorX1.encoder->read();
+  motorX1.set_PWM(FORWARD, FULL_POWER);
+  while (motorX1.current_pos < motorX1.buffer_count) {
+    motorX1.current_pos = motorX1.encoder->read();
   }
-
+  motorX1.encoder->write(0);//adding buffer into homing
+  delay(250);
   //find max:
   while (!digitalRead(XMAX)) {
-    motorX1.cur_pos = motorX1.encoder->read();
+    motorX1.current_pos = motorX1.encoder->read();
 
     //if any other switches are hit, stop and return error:
     if (switch_check(XMAX)) {
@@ -216,24 +216,23 @@ bool homing_sequence() {
   }
   //on finding max, update position:
   motorX1.brake();
-  motorX1.max_pos = motorX1.cur_pos;
+  motorX1.max_pos = motorX1.current_pos;
 
-  //then move away from the limit switch so that it is not triggered:
-  motorX1.set_PWM(BACK, 255);
-  while (motorX1.max_pos - motorX1.cur_pos < motorX1.buffer_count) {
-    motorX1.cur_pos = motorX1.encoder->read();
+  //then move away from the limit switch so that it is not triggered at 0:
+  motorX1.set_PWM(BACK, FULL_POWER);
+  while (motorX1.max_pos - motorX1.current_pos < motorX1.buffer_count) {
+    motorX1.current_pos = motorX1.encoder->read();
   }
   motorX1.brake();
-
-  //then set a goal to move back to 0 after homing:
-  //motorX1.set_target(0, GANTRY_FAST_TRAVEL);
+  motorX1.max_pos = motorX1.current_pos;
+  
   delay(250);
   //-----------------------------------------------------
   //y axis homing:
 
   //find 0:
-  motorY1.set_PWM(BACK, 255);
-  motorY2.set_PWM(BACK, 255);
+  motorY1.set_PWM(BACK, FULL_POWER);
+  motorY2.set_PWM(BACK, FULL_POWER);
   while (!digitalRead(YMIN)) {
     //if any other switches are hit, stop and return error:
     if (switch_check(YMIN)) {
@@ -248,21 +247,23 @@ bool homing_sequence() {
   motorY1.encoder->write(0);
   motorY2.encoder->write(0);
 
-  //then move away from the limit switch so that it is not triggered:
-  motorY1.set_PWM(FORWARD, 255);
-  motorY2.set_PWM(FORWARD, 255);
-  while (motorY1.cur_pos < motorY1.buffer_count) {
-    motorY1.cur_pos = motorY1.encoder->read();
-    motorY2.cur_pos = motorY2.encoder->read();
+  //then move away from the limit switch so that it is not triggered at 0:
+  motorY1.set_PWM(FORWARD, FULL_POWER);
+  motorY2.set_PWM(FORWARD, FULL_POWER);
+  while (motorY1.current_pos < motorY1.buffer_count) {
+    motorY1.current_pos = motorY1.encoder->read();
+    motorY2.current_pos = motorY2.encoder->read();
   }
-
+  motorY1.encoder->write(0);//add buffer into 0 pos.
+  motorY2.encoder->write(0);
+delay(250);
   //find max:
-  motorY1.set_PWM(FORWARD, 255);
-  motorY2.set_PWM(FORWARD, 255);
+  motorY1.set_PWM(FORWARD, FULL_POWER);
+  motorY2.set_PWM(FORWARD, FULL_POWER);
 
   while (!digitalRead(YMAX)) {
-    motorY1.cur_pos = motorY1.encoder->read();
-    motorY2.cur_pos = motorY2.encoder->read();
+    motorY1.current_pos = motorY1.encoder->read();
+    motorY2.current_pos = motorY2.encoder->read();
 
     //if any other switches are hit, stop and return error:
     if (switch_check(YMAX)) {
@@ -274,26 +275,41 @@ bool homing_sequence() {
   //on finding max, update position:
   motorY1.brake();
   motorY2.brake();
-  motorY1.max_pos = motorY1.cur_pos;
-  motorY2.max_pos = motorY2.cur_pos;
+  motorY1.max_pos = motorY1.current_pos;
+  motorY2.max_pos = motorY2.current_pos;
 
   //then move away from the limit switch so that it is not triggered:
-  motorY1.set_PWM(BACK, 255);
-  motorY2.set_PWM(BACK, 255);
-  while (motorY1.max_pos - motorY1.cur_pos < motorY1.buffer_count) {
-    motorY1.cur_pos = motorY1.encoder->read();
-    motorY2.cur_pos = motorY2.encoder->read();
+  motorY1.set_PWM(BACK, FULL_POWER);
+  motorY2.set_PWM(BACK, FULL_POWER);
+  while (motorY1.max_pos - motorY1.current_pos < motorY1.buffer_count) {
+    motorY1.current_pos = motorY1.encoder->read();
+    motorY2.current_pos = motorY2.encoder->read();
   }
   motorY1.brake();
   motorY2.brake();
+  motorY1.max_pos = motorY1.current_pos;
+  motorY2.max_pos = motorY2.current_pos;
+
   delay(250);
   //then move back to 0 after homing sequence:
-  //motorX1.set_target(0, GANTRY_FAST_TRAVEL);
-  //motorY1.set_target(0, GANTRY_FAST_TRAVEL);
-  //motorY2.set_target(0, GANTRY_FAST_TRAVEL);
+  motorX1.set_target(0, GANTRY_FAST_TRAVEL);
+  motorY1.set_target(0, GANTRY_FAST_TRAVEL);
+  motorY2.set_target(0, GANTRY_FAST_TRAVEL);
 
   //-----------------------------------------------------
   //z axis homing:
 
   return true;
+}
+
+void exit_and_reset_arduino()
+{
+  motorX1.brake();
+  motorY1.brake();
+  motorY2.brake();
+  motorZ1.brake();
+  digitalWrite(FANS, LOW);
+  digitalWrite(DRILL, LOW);
+  digitalWrite(ELECTROMAGNETS, LOW);
+  reset_arduino();
 }

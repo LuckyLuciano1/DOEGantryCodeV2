@@ -31,17 +31,12 @@ void EventManager::RunNextCommand() {
         case HOMING:
             std::cout<<"------------------------Beginning Homing Procedure------------------------"<<std::endl;
             ManualStall();
-            //gantry->MoveGantryX("25");
-            //gantry->MoveGantryY("25");
+            //gantry->MoveGantryX(-100, 5);//currently untested
             gantry->HomeGantry();
             ManualStall();
-            //countdown = 30;
+            countdown = 10;
             break;
         case TOGGLE_DRILL:
-            //gantry->MoveGantryX("0");
-            //gantry->MoveGantryY("0");
-            //ManualStall();
-            //gantry->MoveGantryX("250");
             //ManualStall();
             /*std::cout<<"------------------------     Activating Drill     ------------------------"<<std::endl;
             ManualStall();
@@ -51,14 +46,10 @@ void EventManager::RunNextCommand() {
             countdown = 500;*/
             break;
         case MOVE_X_START:
-            /*gantry->SetGantryXSpeed("100");
-            gantry->MoveGantryX("20");
-            countdown = 100;*/
+
             break;
         case MOVE_X_END:
-            /*gantry->SetGantryXSpeed("100");
-            gantry->MoveGantryX("0");
-            countdown = 100*/
+
             break;
         default://if all commands have been run
             std::cout<<"All commands have been processed, exiting event manager"<<std::endl;
@@ -83,7 +74,49 @@ void EventManager::Update() {
     else
         countdown--;
 
-    //receive error warnings from arduino here (or other repeated data)
+    //receive feedback from arduino here (only integers, which are then reinterpreted into enum ARDUINO_FEEDBACK)
+    byte data[2];
+    if(arduino->ReadData(data, 2)){
+        union message {
+            byte b[2];
+            int i;
+        };
+        message m{};
+        for(int x = 0; x < 2; x++){
+            m.b[x] = data[x];
+        }
+
+        switch (m.i) {
+            case Arduino::HOMING_FAILED:
+                std::cout<<"Message Received - value "<<m.i<<" - Homing Failed, Arduino Reset"<<std::endl;
+                exit = true;
+                break;
+            case Arduino::HOMING_SUCCESSFUL:
+                std::cout<<"Message Received - value "<<m.i<<" - Homing Succeeded"<<std::endl;
+                break;
+            case Arduino::SWITCH_HIT:
+                std::cout<<"Message Received - value "<<m.i<<" - Switch was Hit"<<std::endl;
+                break;
+            case Arduino::MIN_X_HIT:
+                std::cout<<"Message Received - value "<<m.i<<" - MIN X Switch was Hit"<<std::endl;
+                break;
+            case Arduino::MAX_X_HIT:
+                std::cout<<"Message Received - value "<<m.i<<" - MAX X Switch was Hit"<<std::endl;
+                break;
+            case Arduino::MIN_Y_HIT:
+                std::cout<<"Message Received - value "<<m.i<<" - MIN Y Switch was Hit"<<std::endl;
+                break;
+            case Arduino::MAX_Y_HIT:
+                std::cout<<"Message Received - value "<<m.i<<" - MAX Y Switch was Hit"<<std::endl;
+                break;
+            case Arduino::MIN_Z_HIT:
+                std::cout<<"Message Received - value "<<m.i<<" - MIN Z Switch was Hit"<<std::endl;
+                break;
+            default:
+                std::cout<<"Message Received - value "<<m.i<<" - unrecognized code, check enum ARDUINO_ERRORS"<<std::endl;
+                break;
+        }
+    }
 
     //~100fps - need a more robust timer
     Sleep(10);
@@ -104,7 +137,7 @@ EventManager::~EventManager() {
     delete fans;
 
     std::cout << "Closing Arduino";
-    arduino->SendCommand(Arduino::CLOSE);
+    arduino->SendInt(Arduino::CLOSE);
     delete arduino;
 }
 

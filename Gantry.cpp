@@ -9,38 +9,30 @@ Gantry::Gantry(Arduino *arduino) {
     this->arduino = arduino;
 }
 
-void Gantry::MoveGantry(const char* posXmm, const char* posYmm, const char* posZmm) {
-    std::cout<<"Moving Gantry";
-    arduino->SendLongCommand(Arduino::MOVE_X, posXmm);
-    arduino->SendLongCommand(Arduino::MOVE_Y, posYmm);
-    arduino->SendLongCommand(Arduino::MOVE_Z, posZmm);
+void Gantry::MoveGantry(float posXmm, float velXmms, float posYmm, float velYmms, float posZmm, float velZmms) {
+    MoveGantryX(posXmm, velXmms);
+    MoveGantryY(posYmm, velYmms);
+    MoveGantryZ(posZmm, velZmms);
 }
-void Gantry::MoveGantryX(const char* posXmm) {
-    std::cout<<"Moving Gantry";
-    arduino->SendLongCommand(Arduino::MOVE_X, posXmm);
+void Gantry::MoveGantryX(float posXmm, float velXmms) {
+    std::cout<<"Moving Gantry X axis";
+    arduino->SendInt(Arduino::MOVE_X);
+    arduino->SendFloat(posXmm);
+    arduino->SendFloat(velXmms);
 }
-void Gantry::MoveGantryY(const char* posYmm) {
-    std::cout<<"Moving Gantry";
-    arduino->SendLongCommand(Arduino::MOVE_Y, posYmm);
+void Gantry::MoveGantryY(float posYmm, float velYmms) {
+    std::cout<<"Moving Gantry Y axis";
+    arduino->SendInt(Arduino::MOVE_Y);
+    arduino->SendFloat(posYmm);
+    arduino->SendFloat(velYmms);
 }
-void Gantry::MoveGantryZ(const char* posZmm) {
-    std::cout<<"Moving Gantry";
-    arduino->SendLongCommand(Arduino::MOVE_Z, posZmm);
+void Gantry::MoveGantryZ(float posZmm, float velZmms) {
+    std::cout<<"Moving Gantry Z axis";
+    arduino->SendInt(Arduino::MOVE_Z);
+    arduino->SendFloat(posZmm);
+    arduino->SendFloat(velZmms);
 }
 void Gantry::HomeGantry() {
     std::cout<<"Homing Gantry";
-    arduino->SendCommand(Arduino::HOME);
-}
-
-void Gantry::SetGantryXSpeed(const char *spX) {
-    std::cout<<"Setting X Speed %";
-    arduino->SendLongCommand(Arduino::SET_X_PERCENT, spX);
-}
-void Gantry::SetGantryYSpeed(const char *spY) {
-    std::cout<<"Setting Y Speed %";
-    arduino->SendLongCommand(Arduino::SET_Y_PERCENT, spY);
-}
-void Gantry::SetGantryZSpeed(const char *spZ) {
-    std::cout<<"Setting Z Speed %";
-    arduino->SendLongCommand(Arduino::SET_Z_PERCENT, spZ);
+    arduino->SendInt(Arduino::HOME);
 }

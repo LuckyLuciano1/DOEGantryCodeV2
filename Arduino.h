@@ -19,29 +19,42 @@ private:
 
 public:
     enum ARDUINO_COMMANDS {
+        //one-int, immediate response commands:
         TURN_ELECTROMAGNETS_OFF,
         TURN_ELECTROMAGNETS_ON,
         TURN_DRILL_OFF,
         TURN_DRILL_ON,
         TURN_FANS_OFF,
         TURN_FANS_ON,
-        SET_X_PERCENT,
-        SET_Y_PERCENT,
-        SET_Z_PERCENT,
         HOME,
+        //multiple int&float, delayed response commands:
         MOVE_X,
         MOVE_Y,
         MOVE_Z,
+        //exit command:
         CLOSE
     };
-
+    enum ARDUINO_FEEDBACK {
+        HOMING_FAILED,
+        HOMING_SUCCESSFUL,
+        SWITCH_HIT,
+        MIN_X_HIT,
+        MAX_X_HIT,
+        MIN_Y_HIT,
+        MAX_Y_HIT,
+        MIN_Z_HIT
+    };
     explicit Arduino(const char *portName);
     ~Arduino();
 
-    void SendCommand(int command);
-    void SendLongCommand(int command, const char * data);
+    //void SendCommand(int command);
+    //void SendLongCommand(int command, const char * data);
 
-    bool ReadData(char *buffer, unsigned int nbChar);
+    void SendInt(int data);
+    void SendFloat(float data);
+    void SendChar(char data);
+
+    bool ReadData(byte *buffer, unsigned int nbChar);
     bool WriteData(const char *buffer, unsigned int nbChar);
 
     bool IsConnected() const{ return connected; }
