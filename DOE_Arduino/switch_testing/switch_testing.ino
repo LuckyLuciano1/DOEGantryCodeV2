@@ -5,7 +5,6 @@
 #define xmin 38
 
 void setup() {
-  // put your setup code here, to run once:
   Serial.begin(9600);
   pinMode(xmin, INPUT_PULLUP);
   pinMode(xmax, INPUT_PULLUP);
@@ -13,6 +12,7 @@ void setup() {
   pinMode(ymax, INPUT_PULLUP);
   pinMode(zmin, INPUT_PULLUP);
 }
+
 bool xminflag, xmaxflag, yminflag, ymaxflag, zminflag, zmaxflag;
 void loop() {
   xminflag = digitalRead(xmin);
@@ -37,4 +37,5 @@ void loop() {
     Serial.print("ZMIN");
 
   Serial.println(";");
+  delay(1);
 }

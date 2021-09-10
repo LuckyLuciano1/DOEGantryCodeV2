@@ -29,15 +29,17 @@ void EventManager::RunNextCommand() {
 
     switch (eventCount) {
         case HOMING:
-            std::cout<<"------------------------Beginning Homing Procedure------------------------"<<std::endl;
+            //std::cout<<"------------------------Beginning Homing Procedure------------------------"<<std::endl;
             ManualStall();
-            //gantry->MoveGantryX(-100, 5);//currently untested
+            //gantry->MoveGantryY(-900, 5);
             gantry->HomeGantry();
             ManualStall();
-            countdown = 10;
+            countdown = 100;
             break;
         case TOGGLE_DRILL:
-            //ManualStall();
+            //gantry->MoveGantryY(0, 5);
+            //countdown = 100;
+            //eventCount = HOMING-1;
             /*std::cout<<"------------------------     Activating Drill     ------------------------"<<std::endl;
             ManualStall();
             drill->TurnOn();

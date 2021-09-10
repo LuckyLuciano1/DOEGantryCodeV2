@@ -70,7 +70,6 @@ void Arduino::SendInt(int data){
     union message m{};
     m.value = data;
 
-    std::cout<<"- sending value "<<m.value;
     if (!WriteData(reinterpret_cast<const char *>(&m.b[0]), sizeof(int)))
         std::cout << ", data failed to send." << std::endl;
     else
