@@ -10,9 +10,25 @@ Gantry::Gantry(Arduino *arduino) {
 }
 
 void Gantry::MoveGantry(float posXmm, float velXmms, float posYmm, float velYmms, float posZmm, float velZmms) {
-    MoveGantryX(posXmm, velXmms);
-    MoveGantryY(posYmm, velYmms);
+    MoveGantryXY(posXmm, velXmms, posYmm, velYmms);
     MoveGantryZ(posZmm, velZmms);
+}
+//TODO:test & verify
+void Gantry::MoveGantryXY(float posXmm, float velXmms, float posYmm, float velYmms){
+    //adjust speed proportional to triangle, such that they both complete at the same time.
+    float genVel = std::max(velXmms, velYmms);
+    float new_velXmms = (posXmm/posYmm)*genVel;
+    float new_velYmms = (posYmm/posXmm)*genVel;
+
+    genVel = std::max(new_velXmms, new_velYmms);
+    //scale to max speed:
+    if(genVel > MAX_VEL) {
+        new_velXmms *= MAX_VEL / genVel;
+        new_velYmms *= MAX_VEL / genVel;
+    }
+
+    MoveGantryX(posXmm, new_velXmms);
+    MoveGantryY(posYmm, new_velYmms);
 }
 void Gantry::MoveGantryX(float posXmm, float velXmms) {
     std::cout<<"Moving Gantry X axis";

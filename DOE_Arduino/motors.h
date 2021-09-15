@@ -2,6 +2,8 @@
 #include <PID_v1.h>
 #include "serial.h"
 
+
+
 //type-specific config variables:
 int pololu_CPR = 64;
 int pololu_GR = 30;
@@ -36,12 +38,14 @@ class motor {
     int Ki = 0;
     int Kd = 5;
     double target_pos, target_vel, target_distance;
-    double PID_setpoint, PID_input, PID_output;
+    double PID_setpoint = 0;
+    double PID_input = 0;
+    double PID_output = 255;
     double prev_cycle_time = 0;
-    bool target_reached = true;
     PID *myPID;
 
   public:
+    bool target_reached = true;
     double current_pos;
     int buffer_count;//padding between target position and actual position to make sure the system does not overshoot. used in homing sequence.
     int motor_speed;
@@ -103,28 +107,12 @@ class motor {
       digitalWrite(PWM2, LOW);
     }
 
-    void update_motor() {
+    bool update_motor() {
       //update current position:
       current_pos = encoder->read();
-      //limit switches:
-
-      if (using_switch_min && digitalRead(switch_min)) {//if a voltage is not registered, the switch has been activated (or there is a miswiring)
-        brake();
-        target_reached = true;
-        current_pos = 0;//recalibrate
-        encoder->write(0);
-        target_pos = current_pos;
-        send_int(SWITCH_HIT);
-      }
-      if (using_switch_max && digitalRead(switch_max)) {
-        brake();
-        target_reached = true;
-        max_pos = current_pos;//recalibrate
-        encoder->write(current_pos);
-        target_pos = current_pos;
-        send_int(SWITCH_HIT);
-      }
-
+      
+      if(!check_switches())
+        return false;
 
       if (!target_reached) {
         //calculate delta_time:
@@ -151,21 +139,18 @@ class motor {
             set_PWM(BACK, PID_output);
         }
       }
-
-    }//update {}
-
-    void set_target(int target_pos_mm, int target_vel_mm_per_min)
-    {
+      return true;
+    }
+    void set_target(int target_pos_mm, int target_vel_mm_per_min) {
       target_reached = false;
       current_pos = encoder->read();
 
       target_vel = (target_vel_mm_per_min) / MM_PER_ROT; //now in rpm
       target_pos = (target_pos_mm / MM_PER_ROT) * CPR;
       target_distance = target_pos - current_pos;
+      PID_setpoint = abs(target_distance * 0.1f);
     }
-
-    void set_PWM(bool dir, uint8_t pwm)
-    {
+    void set_PWM(bool dir, uint8_t pwm) {
       if (dir == FORWARD) {    //left
         analogWrite(PWM2, 0);
         delayMicroseconds(100);
@@ -177,62 +162,36 @@ class motor {
         analogWrite(PWM2, pwm);
       }
     }
-
-    void brake()
-    {
+    void brake() {
       analogWrite(PWM1, LOW);
       analogWrite(PWM2, LOW);
     }
-
-    ~motor()
-    {
+    ~motor() {
       delete myPID;
       delete encoder;
     }
-};
 
-//old stuff:
-//limit switches:
-/*
+  private:
+
+    bool check_switches() {
       if (using_switch_min && digitalRead(switch_min)) {//if a voltage is not registered, the switch has been activated (or there is a miswiring)
-        target_reached = true;
-        current_pos = 0;//recalibrate
-        encoder->write(0);
-        target_pos = current_pos;
-        stop_motor();
+        brake();
+        if (label == "X1")
+          send_int(MIN_X_HIT);
+        else if (label == "Y1" || label == "Y2")
+          send_int(MIN_Y_HIT);
+        else if (label == "Z1")
+          send_int(MIN_Z_HIT);
+        return false;
       }
       if (using_switch_max && digitalRead(switch_max)) {
-        target_reached = true;
-        max_pos = current_pos;//recalibrate
-        encoder->write(current_pos);
-        target_pos = current_pos;
-        stop_motor();
+        brake();
+        if (label == "X1")
+          send_int(MAX_X_HIT);
+        else if (label == "Y1" || label == "Y2")
+          send_int(MAX_Y_HIT);
+        return false;
       }
-*/
-//targeting:
-/*
-  if (!target_reached) {//move towards target
-  if (current_pos + overshoot < target_pos && current_pos + overshoot < max_pos)
-    move_forward();
-  else if (current_pos - overshoot > target_pos && current_pos - overshoot > 0)
-    move_back();
-  else { //near target - stop
-    target_reached = true;
-    stop_motor();
-  }
-  }
-*/
-
-/*
-  void set_goal(double goal_mm) {//from range of (ex) 0 to 1500mm
-    double rotations = goal_mm / MM_PER_ROT;
-    target_pos = rotations * GR * CPR;
-    target_reached = false;
-
-    //add buffer to avoid bumping into pins at edges
-    if (target_pos < buffer_count)
-      target_pos = buffer_count;
-    if (target_pos > max_pos - buffer_count)
-      target_pos = max_pos - buffer_count;
-  }
-*/
+      return true;
+    }
+};

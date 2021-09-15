@@ -1,6 +1,4 @@
 #include "motors.h"
-//#include "serial.h"
-//#include <LiquidCrystal.h>
 
 //pin assignment:
 #define ELECTROMAGNETS 44
@@ -32,8 +30,6 @@
 #define YMAX 32
 #define ZMIN 30
 
-void(* reset_arduino) (void) = 0;
-
 //motor initialization:
 motor motorZ1("Z1", Z1PWM1, Z1PWM2, Z1QUAD1, Z1QUAD2, ZMIN, 0, MAXON353301);
 motor motorX1("X1", X1PWM1, X1PWM2, X1QUAD1, X1QUAD2, XMIN, XMAX, POLOLU37D);
@@ -50,14 +46,37 @@ void setup() {
 
 int serial_status = AWAITING_NEW_COMMAND;
 int buffer_data = 0;
+bool motors_locked = false;
+bool motor_target_given = false;
 
 void loop() {
+  delayMicroseconds(1000);
   //update motors:
-  motorX1.update_motor();
-  motorY1.update_motor();
-  motorY2.update_motor();
-  motorZ1.update_motor();
+  if (!motors_locked) {
+    if (!motorX1.update_motor() ||
+        !motorY1.update_motor() ||
+        !motorY2.update_motor() ||
+        !motorZ1.update_motor()) {
+      //on failure (limit switch hit):
+      motorX1.brake();
+      motorY1.brake();
+      motorY2.brake();
+      motorZ1.brake();
+      motors_locked = true;
+      send_int(MOTORS_LOCKED);
+    }
+  }
+  //if motor target has been given then reached, send to the comupter that the motor movement is successful.
+  if (motor_target_given &&
+      motorX1.target_reached &&
+      motorY1.target_reached &&
+      motorY2.target_reached &&
+      motorZ1.target_reached) {
+    motor_target_given = false;
+    send_int(EVENT_SUCCESSFUL);
+  }
 
+  delay(1);
   //if not awaiting positional info:
   if (serial_status == AWAITING_NEW_COMMAND &&
       Serial.available() >= 4) { //if any data available
@@ -79,9 +98,11 @@ void loop() {
         break;
       case TURN_DRILL_OFF:
         digitalWrite(DRILL, LOW);
+        send_int(EVENT_SUCCESSFUL);
         break;
       case TURN_DRILL_ON:
         digitalWrite(DRILL, HIGH);
+        send_int(EVENT_SUCCESSFUL);
         break;
       case TURN_FANS_OFF:
         digitalWrite(FANS, LOW);
@@ -92,9 +113,9 @@ void loop() {
       //motor commands:
       case HOME:
         if (homing_sequence())//send error code
-          send_int(HOMING_SUCCESSFUL);
+          send_int(EVENT_SUCCESSFUL);
         else {
-          send_int(HOMING_FAILED);
+          send_int(EVENT_FAILED);
           exit_and_reset_arduino();
         }
         break;
@@ -137,15 +158,18 @@ void loop() {
       case GETTING_X_TARGET_VEL:
         //move motor with sent velocity data and previously sent positional data:
         motorX1.set_target(buffer_data, m.f);
+        motor_target_given = true;
         serial_status = AWAITING_NEW_COMMAND;
         break;
       case GETTING_Y_TARGET_VEL:
         motorY1.set_target(buffer_data, m.f);
         motorY2.set_target(buffer_data, m.f);
+        motor_target_given = true;
         serial_status = AWAITING_NEW_COMMAND;
         break;
       case GETTING_Z_TARGET_VEL:
         motorZ1.set_target(buffer_data, m.f);
+        motor_target_given = true;
         serial_status = AWAITING_NEW_COMMAND;
         break;
     }//switch
@@ -191,20 +215,22 @@ bool homing_sequence() {
       return false;
     }
   }
-  
+
   //on finding 0, update position:
   motorX1.brake();
-  motorX1.encoder->write(-motorX1.buffer_count);
-  
+  motorX1.encoder->write(0);
+
   //then move away from the limit switch so that it is not triggered:
   motorX1.set_PWM(FORWARD, FULL_POWER);
-  while (motorX1.current_pos < 0) {
-    //delay(1);
+  while (motorX1.current_pos < motorX1.buffer_count) {
+    delay(1);
     motorX1.current_pos = motorX1.encoder->read();
   }
+  motorX1.encoder->write(0);
+
   //find max:
   while (!digitalRead(XMAX)) {
-    //delay(1);
+    delay(1);
     motorX1.current_pos = motorX1.encoder->read();
 
     //if any other switches are hit, stop and return error:
@@ -213,18 +239,19 @@ bool homing_sequence() {
       return false;
     }
   }
-  send_int(23);
   //on finding max, update position:
   motorX1.brake();
-  motorX1.max_pos = motorX1.current_pos - motorX1.buffer_count;
+  motorX1.max_pos = motorX1.current_pos;
 
   //then move away from the limit switch so that it is not triggered at 0:
   motorX1.set_PWM(BACK, FULL_POWER);
-  while (motorX1.max_pos - motorX1.current_pos < 0) {
+  while (motorX1.max_pos - motorX1.current_pos < motorX1.buffer_count) {
     motorX1.current_pos = motorX1.encoder->read();
   }
   motorX1.brake();
-  delay(250);
+  //new max:
+  motorX1.max_pos = motorX1.current_pos;
+
   //-----------------------------------------------------
   //y axis homing:
 
@@ -243,15 +270,21 @@ bool homing_sequence() {
   //on finding 0, update position:
   motorY1.brake();
   motorY2.brake();
-  motorY1.encoder->write(-motorY1.buffer_count);
-  motorY2.encoder->write(-motorY2.buffer_count);
+  motorY1.encoder->write(0);
+  motorY2.encoder->write(0);
+
   //then move away from the limit switch so that it is not triggered at 0:
   motorY1.set_PWM(FORWARD, FULL_POWER);
   motorY2.set_PWM(FORWARD, FULL_POWER);
-  while (motorY1.current_pos < 0) {
+  
+  while (motorY1.current_pos < motorY1.buffer_count) {
     motorY1.current_pos = motorY1.encoder->read();
     motorY2.current_pos = motorY2.encoder->read();
   }
+  //new 0:
+  motorY1.encoder->write(0);
+  motorY2.encoder->write(0);
+
   //find max:
   motorY1.set_PWM(FORWARD, FULL_POWER);
   motorY2.set_PWM(FORWARD, FULL_POWER);
@@ -271,23 +304,28 @@ bool homing_sequence() {
   //on finding max, update position:
   motorY1.brake();
   motorY2.brake();
-  motorY1.max_pos = motorY1.current_pos - motorY1.buffer_count;
-  motorY2.max_pos = motorY2.current_pos - motorY2.buffer_count;
+  motorY1.max_pos = motorY1.current_pos;
+  motorY2.max_pos = motorY2.current_pos;
+
   //then move away from the limit switch so that it is not triggered:
   motorY1.set_PWM(BACK, FULL_POWER);
   motorY2.set_PWM(BACK, FULL_POWER);
-  while (motorY1.max_pos - motorY1.current_pos < 0) {
+  while (motorY1.max_pos - motorY1.current_pos < motorY1.buffer_count) {
     motorY1.current_pos = motorY1.encoder->read();
     motorY2.current_pos = motorY2.encoder->read();
   }
+
   motorY1.brake();
   motorY2.brake();
-  delay(125);
+  //new max:
+  motorY1.max_pos = motorY1.current_pos;
+  motorY2.max_pos = motorY2.current_pos;
+
   //then move back to 0 after homing sequence:
-  motorX1.set_target(0, GANTRY_FAST_TRAVEL);
-  motorY1.set_target(0, GANTRY_FAST_TRAVEL);
-  motorY2.set_target(0, GANTRY_FAST_TRAVEL);
-  delay(125);
+  //motorX1.set_target(0, GANTRY_FAST_TRAVEL);
+  //motorY1.set_target(0, GANTRY_FAST_TRAVEL);
+  //motorY2.set_target(0, GANTRY_FAST_TRAVEL);
+
   //-----------------------------------------------------
   //z axis homing:
 

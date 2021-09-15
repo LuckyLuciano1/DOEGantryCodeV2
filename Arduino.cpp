@@ -152,7 +152,6 @@ bool Arduino::ReadData(byte *buffer, unsigned int nbChar) {
 bool Arduino::WriteData(const char *buffer, unsigned int nbChar) {
     DWORD bytesSend;
     //Try to write the buffer on the Serial port
-    std::cout<<", "<<sizeof buffer<<" bytes";
     if (!WriteFile(hSerial, buffer, nbChar, &bytesSend, nullptr)) {
         ClearCommError(hSerial, &errors, &status);
         return false;

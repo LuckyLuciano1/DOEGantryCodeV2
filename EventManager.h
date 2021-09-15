@@ -20,9 +20,19 @@ private:
     Fans* fans;
     Gantry* gantry;
 
-    int countdown;
-    int eventCount;
+    int current_event;
+    bool event_complete;
+    long long pause_millisec;
+    enum EVENT_LIST{
+        HOMING,
+        GO_TO_ZERO,
+        ACTIVATE_DRILL,
+        DEACTIVATE_DRILL,
+        MOVE_X_START,
+        MOVE_X_END
+    };
 
+    long long time;
 public:
     bool exit;
 
@@ -30,9 +40,12 @@ public:
     void Update();
     void StartUp();
     void ShutDown();
-    void RunNextCommand();
-    void ManualStall();
+    static void PauseProgram();
+
     ~EventManager();
+private:
+    void InterpretFeedback(int i);
+    void RunEvent(int event);
 };
 
 #endif //MAIN_CPP_EVENTMANAGER_H

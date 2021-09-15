@@ -1,3 +1,5 @@
+void(* reset_arduino) (void) = 0;
+
 enum ARDUINO_COMMANDS {//periodic controls sent to arduino
   //one-int, immediate response commands:
   //EMPTY,//cannot interpret zero (error found via trial & error)
@@ -17,14 +19,15 @@ enum ARDUINO_COMMANDS {//periodic controls sent to arduino
 };
 
 enum ARDUINO_FEEDBACK {
-  HOMING_FAILED,
-  HOMING_SUCCESSFUL,
+  EVENT_FAILED,
+  EVENT_SUCCESSFUL,
   SWITCH_HIT,
   MIN_X_HIT,
   MAX_X_HIT,
   MIN_Y_HIT,
   MAX_Y_HIT,
-  MIN_Z_HIT
+  MIN_Z_HIT,
+  MOTORS_LOCKED
 };
 
 
