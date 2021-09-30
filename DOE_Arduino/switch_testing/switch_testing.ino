@@ -37,5 +37,5 @@ void loop() {
     Serial.print("ZMIN");
 
   Serial.println(";");
-  delay(1);
+  //delay(1);
 }

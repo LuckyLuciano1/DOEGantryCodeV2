@@ -32,17 +32,11 @@ void EventManager::StartUp() {
 
 void EventManager::Update() {
     int event_order[]{
-            HOMING,
-            GO_TO_ZERO/*,
-            MOVE_X_START,
-            MOVE_X_END,
-            GO_TO_ZERO,
-            MOVE_X_START,
-            MOVE_X_END,
-            GO_TO_ZERO,
-            MOVE_X_START,
-            MOVE_X_END,
-            GO_TO_ZERO*/
+        HOMING,
+        GO_TO_ZERO,
+        MOVE_X_START,
+        MOVE_X_END,
+        GO_TO_ZERO
     };
     //update clock:
     long long prev_time = time;
@@ -97,18 +91,22 @@ void EventManager::RunEvent(int event) {
             pause_millisec = 250;
             break;
         case GO_TO_ZERO:
-            gantry->MoveGantryX(0, 5);
-            gantry->MoveGantryY(0, 5);
+            gantry->MoveGantryX(0, 500.0f);
+            gantry->MoveGantryY(0, 500.0f);
             pause_millisec = 500;
             break;
         case MOVE_X_START:
-            gantry->MoveGantryX(250, 0.25f);
-            gantry->MoveGantryY(250, 0.25f);
+            gantry->MoveGantryX(50, 10.0f);
+            gantry->MoveGantryY(50, 10.0f);
             pause_millisec = 250;
             break;
         case MOVE_X_END:
-            gantry->MoveGantryX(700, 0.1f);
-            gantry->MoveGantryY(700, 0.1f);
+            gantry->MoveGantryX(100, 5.0f);
+            gantry->MoveGantryY(100, 5.0f);
+            pause_millisec = 250;
+            break;
+        case MOVE_Z:
+            gantry->MoveGantryZ(2, 0.1f);
             pause_millisec = 250;
             break;
         case ACTIVATE_DRILL:
@@ -181,6 +179,10 @@ void EventManager::InterpretFeedback(int i) {
             break;
         case Arduino::MOTORS_LOCKED:
             std::cout<<"Message Received - value "<<i<<" - MOTORS ARE LOCKED DUE TO SWITCH BEING HIT - CLOSING"<<std::endl;
+            exit = true;
+            break;
+        case Arduino::EXIT_AND_RESET:
+            std::cout<<"Message Received - value "<<i<<" - ARDUINO IS NOW EXITING AND RESETTING"<<std::endl;
             exit = true;
             break;
         default:

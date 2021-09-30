@@ -13,17 +13,14 @@
   <component name="ChangeListManager">
     <list default="true" id="0da28ab1-dca0-4a79-852b-1aa4211cb5ab" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Arduino.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Arduino.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Arduino.h" beforeDir="false" afterPath="$PROJECT_DIR$/Arduino.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/DOE_Arduino/DOE_Arduino.ino" beforeDir="false" afterPath="$PROJECT_DIR$/DOE_Arduino/DOE_Arduino.ino" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/DOE_Arduino/motors.h" beforeDir="false" afterPath="$PROJECT_DIR$/DOE_Arduino/motors.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/DOE_Arduino/serial.h" beforeDir="false" afterPath="$PROJECT_DIR$/DOE_Arduino/serial.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DOE_Arduino/switch_testing/switch_testing.ino" beforeDir="false" afterPath="$PROJECT_DIR$/DOE_Arduino/switch_testing/switch_testing.ino" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/EventManager.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/EventManager.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/EventManager.h" beforeDir="false" afterPath="$PROJECT_DIR$/EventManager.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Gantry.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Gantry.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Gantry.h" beforeDir="false" afterPath="$PROJECT_DIR$/Gantry.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/DOEGantryV2.dir/Arduino.cpp.obj" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/DOEGantryV2.dir/Arduino.cpp.obj" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/DOEGantryV2.dir/CXX.includecache" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/DOEGantryV2.dir/CXX.includecache" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/DOEGantryV2.dir/Drill.cpp.obj" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/DOEGantryV2.dir/Drill.cpp.obj" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/DOEGantryV2.dir/Electromagnets.cpp.obj" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/DOEGantryV2.dir/Electromagnets.cpp.obj" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/DOEGantryV2.dir/EventManager.cpp.obj" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/DOEGantryV2.dir/EventManager.cpp.obj" afterDir="false" />
@@ -127,7 +124,15 @@
       <workItem from="1631556005878" duration="4769000" />
       <workItem from="1631644671331" duration="47000" />
       <workItem from="1631648602455" duration="8745000" />
-      <workItem from="1631718684865" duration="4103000" />
+      <workItem from="1631718684865" duration="4596000" />
+      <workItem from="1631825546523" duration="867000" />
+      <workItem from="1632242233205" duration="594000" />
+      <workItem from="1632506807642" duration="3341000" />
+      <workItem from="1632511833030" duration="118000" />
+      <workItem from="1632512025014" duration="310000" />
+      <workItem from="1632764736968" duration="476000" />
+      <workItem from="1632861237813" duration="4364000" />
+      <workItem from="1633023724420" duration="2338000" />
     </task>
     <servers />
   </component>

@@ -28,6 +28,7 @@ private:
         GO_TO_ZERO,
         ACTIVATE_DRILL,
         DEACTIVATE_DRILL,
+        MOVE_Z,
         MOVE_X_START,
         MOVE_X_END
     };
