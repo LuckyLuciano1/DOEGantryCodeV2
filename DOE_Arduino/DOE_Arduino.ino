@@ -1,5 +1,5 @@
 #include "motors.h"
-
+#include <Robojax_AllegroACS_Current_Sensor.h>
 //pin assignment:
 #define ELECTROMAGNETS 44
 #define DRILL 42
@@ -30,6 +30,8 @@
 #define YMAX 32
 #define ZMIN 30
 
+const int CURRENTPIN = A0;
+
 //switch & motor initialization:
 limit_switch switchXmin(XMIN);
 limit_switch switchXmax(XMAX);
@@ -42,14 +44,14 @@ motor motorX1("X1", X1PWM1, X1PWM2, X1QUAD1, X1QUAD2, &switchXmin, &switchXmax, 
 motor motorY1("Y1", Y1PWM1, Y1PWM2, Y1QUAD1, Y1QUAD2, &switchYmin, &switchYmax, POLOLU37D);
 motor motorY2("Y2", Y2PWM1, Y2PWM2, Y2QUAD1, Y2QUAD2, &switchYmin, &switchYmax, POLOLU37D);
 
-
+Robojax_AllegroACS_Current_Sensor current_sensor(1, CURRENTPIN); //our sensor is model 1 (AMP range of 20)
 
 void setup() {
   Serial.begin(9600);
   pinMode(ELECTROMAGNETS, OUTPUT);
   pinMode(DRILL, OUTPUT);
   pinMode(FANS, OUTPUT);
-  //motorX1.set_target(50.0f, 500.0f);//rpm
+  //motorX1.set_target(25.0f, 60.0f);
 }
 
 int serial_status = AWAITING_NEW_COMMAND;
@@ -61,7 +63,6 @@ void loop() {
   //delayMicroseconds(1000);
 
   update_switches();
-
   //MOTORS:
   if (!motors_locked) {
     if (!motorX1.update() ||
@@ -191,7 +192,7 @@ void loop() {
   }//not awaiting new command if statement
 }//end loop
 
-void update_switches(){
+void update_switches() {
   switchXmin.update();
   switchXmax.update();
   switchYmin.update();
@@ -201,7 +202,7 @@ void update_switches(){
 
 bool switch_check(int given_switch) {
   update_switches();
-  
+
   //if any other switches besides the given switch are hit, return true, else return false:
   if (switchXmin.read() && given_switch != XMIN) {
     send_int(MIN_X_HIT);
@@ -254,7 +255,7 @@ bool homing_sequence() {
   }
   motorX1.encoder->write(0);
   update_switches();
-  
+
   //find max:
   while (!switchXmax.read()) {
     delay(DELAY_TIME);
@@ -314,7 +315,7 @@ bool homing_sequence() {
   motorY1.encoder->write(0);
   motorY2.encoder->write(0);
   update_switches();
-  
+
   //find max:
   motorY1.set_PWM(FORWARD, FULL_POWER);
   motorY2.set_PWM(FORWARD, FULL_POWER);
@@ -345,7 +346,7 @@ bool homing_sequence() {
     motorY1.current_pos = motorY1.encoder->read();
     motorY2.current_pos = motorY2.encoder->read();
   }
-  
+
   motorY1.brake();
   motorY2.brake();
   //new max:
@@ -356,6 +357,59 @@ bool homing_sequence() {
   //-----------------------------------------------------
   //z axis homing:
 
+  //find 0:
+  motorZ1.set_PWM(BACK, FULL_POWER);
+  while (!switchZmin.read()) {
+    delay(DELAY_TIME);
+    //if any other switches are hit, stop and return error:
+    if (switch_check(ZMIN)) {
+      motorZ1.brake();
+      return false;
+    }
+  }
+  //on finding 0, update position:
+  motorZ1.brake();
+  motorZ1.encoder->write(0);
+
+  //then move away from the limit switch so that it is not triggered at 0:
+  motorZ1.set_PWM(FORWARD, FULL_POWER);
+
+  while (motorZ1.current_pos < motorZ1.buffer_count) {
+    delay(DELAY_TIME);
+    motorZ1.current_pos = motorZ1.encoder->read();
+  }
+  //new 0:
+  motorZ1.encoder->write(0);
+  update_switches();
+  //find max:
+  motorZ1.set_PWM(FORWARD, FULL_POWER);
+  send_int(50);
+  while (current_sensor.getCurrentAverage(300) < .40f) {
+    delay(DELAY_TIME);
+    motorZ1.current_pos = motorZ1.encoder->read();
+    //if any other switches are hit, stop and return error:
+    if (switchZmin.read()) {
+      motorZ1.brake();
+      return false;
+    }
+  }
+  //on finding max, update position:
+  motorZ1.brake();
+  motorZ1.max_pos = motorZ1.current_pos;
+  send_int(51);
+  //then move away from the limit switch so that it is not triggered:(*5 so that it is not too close to the plate)
+  motorZ1.set_PWM(BACK, FULL_POWER);
+  while (motorZ1.max_pos - motorZ1.current_pos < motorZ1.buffer_count * 5.0f) {
+    delay(DELAY_TIME);
+    motorZ1.current_pos = motorZ1.encoder->read();
+  }
+
+  motorZ1.brake();
+  //new max:
+  //motorY1.max_pos = motorY1.current_pos;
+  //motorY2.max_pos = motorY2.current_pos;
+  update_switches();
+  send_int(52);
   return true;
 }
 

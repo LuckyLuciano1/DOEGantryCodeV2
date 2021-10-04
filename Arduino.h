@@ -43,6 +43,7 @@ public:
         MIN_Y_HIT,
         MAX_Y_HIT,
         MIN_Z_HIT,
+        MAX_Z_HIT,
         MOTORS_LOCKED,
         EXIT_AND_RESET
     };

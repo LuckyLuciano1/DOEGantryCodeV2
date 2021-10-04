@@ -61,7 +61,7 @@ class motor {
 
   public:
     bool target_reached = true;//check if issue here
-    double current_pos;
+    double current_pos = 0;
     int buffer_count;//padding between target position and actual position to make sure the system does not overshoot. used in homing sequence.
     long max_pos = 0;
     Encoder *encoder;
@@ -79,6 +79,7 @@ class motor {
       this->switch_min = switch_min;
       this->switch_max = switch_max;
       encoder = new Encoder(quad1, quad2);
+      encoder->write(1);
       myPID = new PID(&PID_input, &PID_output, &PID_setpoint, Kp, Ki, Kd, DIRECT);
       myPID->SetMode(AUTOMATIC);
       myPID->SetTunings(Kp, Ki, Kd);
@@ -121,7 +122,7 @@ class motor {
 
       if (!limit_check())
         return false;
-
+        
       if (!target_reached) {
         //calculate delta_time:
         double current_time = micros();

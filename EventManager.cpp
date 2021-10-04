@@ -32,11 +32,12 @@ void EventManager::StartUp() {
 
 void EventManager::Update() {
     int event_order[]{
-        HOMING,
-        GO_TO_ZERO,
-        MOVE_X_START,
-        MOVE_X_END,
-        GO_TO_ZERO
+        //MOVE_Z
+        HOMING
+        //GO_TO_ZERO
+        //MOVE_X_START,
+        //MOVE_X_END,
+        //GO_TO_ZERO
     };
     //update clock:
     long long prev_time = time;
@@ -91,22 +92,22 @@ void EventManager::RunEvent(int event) {
             pause_millisec = 250;
             break;
         case GO_TO_ZERO:
-            gantry->MoveGantryX(0, 500.0f);
-            gantry->MoveGantryY(0, 500.0f);
+            gantry->MoveGantryX(0, 100.0f);
+            gantry->MoveGantryY(0, 100.0f);
             pause_millisec = 500;
             break;
         case MOVE_X_START:
-            gantry->MoveGantryX(50, 10.0f);
-            gantry->MoveGantryY(50, 10.0f);
+            gantry->MoveGantryX(50, 100.0f);
+            gantry->MoveGantryY(50, 100.0f);
             pause_millisec = 250;
             break;
         case MOVE_X_END:
-            gantry->MoveGantryX(100, 5.0f);
-            gantry->MoveGantryY(100, 5.0f);
+            gantry->MoveGantryX(100, 500.0f);
+            gantry->MoveGantryY(100, 500.0f);
             pause_millisec = 250;
             break;
         case MOVE_Z:
-            gantry->MoveGantryZ(2, 0.1f);
+            gantry->MoveGantryZ(50, 500.0f);
             pause_millisec = 250;
             break;
         case ACTIVATE_DRILL:

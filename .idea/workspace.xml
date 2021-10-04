@@ -17,9 +17,7 @@
       <change beforePath="$PROJECT_DIR$/DOE_Arduino/DOE_Arduino.ino" beforeDir="false" afterPath="$PROJECT_DIR$/DOE_Arduino/DOE_Arduino.ino" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/DOE_Arduino/motors.h" beforeDir="false" afterPath="$PROJECT_DIR$/DOE_Arduino/motors.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/DOE_Arduino/serial.h" beforeDir="false" afterPath="$PROJECT_DIR$/DOE_Arduino/serial.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/DOE_Arduino/switch_testing/switch_testing.ino" beforeDir="false" afterPath="$PROJECT_DIR$/DOE_Arduino/switch_testing/switch_testing.ino" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/EventManager.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/EventManager.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/EventManager.h" beforeDir="false" afterPath="$PROJECT_DIR$/EventManager.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/DOEGantryV2.dir/Arduino.cpp.obj" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/DOEGantryV2.dir/Arduino.cpp.obj" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/DOEGantryV2.dir/Drill.cpp.obj" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/DOEGantryV2.dir/Drill.cpp.obj" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/DOEGantryV2.dir/Electromagnets.cpp.obj" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/DOEGantryV2.dir/Electromagnets.cpp.obj" afterDir="false" />
@@ -133,6 +131,10 @@
       <workItem from="1632764736968" duration="476000" />
       <workItem from="1632861237813" duration="4364000" />
       <workItem from="1633023724420" duration="2338000" />
+      <workItem from="1633032255690" duration="1830000" />
+      <workItem from="1633112836996" duration="4266000" />
+      <workItem from="1633360743454" duration="2480000" />
+      <workItem from="1633364978651" duration="500000" />
     </task>
     <servers />
   </component>
