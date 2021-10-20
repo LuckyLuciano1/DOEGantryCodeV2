@@ -1,5 +1,6 @@
 #include "motors.h"
 #include <Robojax_AllegroACS_Current_Sensor.h>
+
 //pin assignment:
 #define ELECTROMAGNETS 44
 #define DRILL 42
@@ -11,7 +12,7 @@
 #define X1PWM1 6
 #define X1PWM2 7
 #define Y1PWM1 8
-#define Y1PWM2 9//may be issue here
+#define Y1PWM2 9
 #define Y2PWM1 10
 #define Y2PWM2 11
 
@@ -383,7 +384,7 @@ bool homing_sequence() {
   update_switches();
   //find max:
   motorZ1.set_PWM(FORWARD, FULL_POWER);
-  send_int(50);
+  
   while (current_sensor.getCurrentAverage(300) < .40f) {
     delay(DELAY_TIME);
     motorZ1.current_pos = motorZ1.encoder->read();
@@ -396,7 +397,7 @@ bool homing_sequence() {
   //on finding max, update position:
   motorZ1.brake();
   motorZ1.max_pos = motorZ1.current_pos;
-  send_int(51);
+
   //then move away from the limit switch so that it is not triggered:(*5 so that it is not too close to the plate)
   motorZ1.set_PWM(BACK, FULL_POWER);
   while (motorZ1.max_pos - motorZ1.current_pos < motorZ1.buffer_count * 5.0f) {
@@ -405,11 +406,9 @@ bool homing_sequence() {
   }
 
   motorZ1.brake();
-  //new max:
-  //motorY1.max_pos = motorY1.current_pos;
-  //motorY2.max_pos = motorY2.current_pos;
   update_switches();
-  send_int(52);
+
+  //homing complete
   return true;
 }
 

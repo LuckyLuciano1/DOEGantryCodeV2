@@ -34,6 +34,8 @@ void EventManager::Update() {
     int event_order[]{
         //MOVE_Z
         HOMING
+        //ACTIVATE_DRILL,
+        //DEACTIVATE_DRILL
         //GO_TO_ZERO
         //MOVE_X_START,
         //MOVE_X_END,
@@ -41,6 +43,7 @@ void EventManager::Update() {
     };
     //update clock:
     long long prev_time = time;
+
     long long new_time = std::chrono::duration_cast<std::chrono::milliseconds>(
             std::chrono::system_clock::now().time_since_epoch()).count();
     long long elapsed_time = new_time - prev_time;
@@ -112,6 +115,7 @@ void EventManager::RunEvent(int event) {
             break;
         case ACTIVATE_DRILL:
             std::cout<<"------------------------     Activating Drill     ------------------------"<<std::endl;
+            PauseProgram();
             drill->TurnOn();
             pause_millisec = 5000;
             break;
@@ -177,6 +181,9 @@ void EventManager::InterpretFeedback(int i) {
             break;
         case Arduino::MIN_Z_HIT:
             std::cout<<"Message Received - value "<<i<<" - MIN Z Switch was Hit"<<std::endl;
+            break;
+        case Arduino::MAX_Z_HIT:
+            std::cout<<"Message Received - value "<<i<<" - MAX Z Switch was Hit"<<std::endl;
             break;
         case Arduino::MOTORS_LOCKED:
             std::cout<<"Message Received - value "<<i<<" - MOTORS ARE LOCKED DUE TO SWITCH BEING HIT - CLOSING"<<std::endl;

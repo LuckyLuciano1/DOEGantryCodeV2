@@ -78,10 +78,8 @@ class motor {
       this->PWM2 = PWM2;
       this->switch_min = switch_min;
       this->switch_max = switch_max;
-      
       encoder = new Encoder(quad1, quad2);
-      encoder->write(1);//may not be necessary for it to be 1 rather than 0
-      
+      encoder->write(1);
       myPID = new PID(&PID_input, &PID_output, &PID_setpoint, Kp, Ki, Kd, DIRECT);
       myPID->SetMode(AUTOMATIC);
       myPID->SetTunings(Kp, Ki, Kd);
@@ -160,13 +158,14 @@ class motor {
       target_vel = 330.0 * (target_vel_rpm / (225.0 * 5.0));
       target_pos = (target_pos_mm / MM_PER_ROT) * CPR;
       target_distance = target_pos - current_pos;
+      //PID_setpoint = abs(target_distance * 0.1f);
     }
     void set_PWM(bool dir, uint8_t pwm) {
       if (dir == FORWARD) {    //left
         analogWrite(PWM2, 0);
         delayMicroseconds(100);
         analogWrite(PWM1, pwm);
-      } 
+      }
       else if (dir == BACK) {  //right
         analogWrite(PWM1, 0);
         delayMicroseconds(100);
@@ -197,7 +196,7 @@ class motor {
           send_int(MIN_Z_HIT);
         return false;
       }
-      if (using_switch_max && switch_max->read()) {
+      if (using_switch_max && switch_min->read()) {
         brake();
         if (label == "X1")
           send_int(MAX_X_HIT);

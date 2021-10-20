@@ -50,9 +50,6 @@ public:
     explicit Arduino(const char *portName);
     ~Arduino();
 
-    //void SendCommand(int command);
-    //void SendLongCommand(int command, const char * data);
-
     void SendInt(int data);
     void SendFloat(float data);
     void SendChar(char data);
