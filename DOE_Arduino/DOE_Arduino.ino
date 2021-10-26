@@ -385,7 +385,7 @@ bool homing_sequence() {
   //find max:
   motorZ1.set_PWM(FORWARD, FULL_POWER);
   
-  while (current_sensor.getCurrentAverage(300) < .40f) {
+  while (current_sensor.getCurrentAverage(300) < 4.0f) {
     delay(DELAY_TIME);
     motorZ1.current_pos = motorZ1.encoder->read();
     //if any other switches are hit, stop and return error:
