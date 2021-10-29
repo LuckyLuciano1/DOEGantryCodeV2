@@ -51,9 +51,9 @@ class motor {
     const char* label;
 
     //pololu tuning:
-    int Kp = 16;
-    int Ki = 0;
-    int Kd = 5;
+    int Kp = 105;
+    int Ki = 6;
+    int Kd = 2;
     double target_pos, target_vel, target_distance;
     double PID_setpoint, PID_input, PID_output;
     double prev_cycle_time = 0;
@@ -63,7 +63,7 @@ class motor {
     bool target_reached = true;//check if issue here
     double current_pos = 0;
     int buffer_count;//padding between target position and actual position to make sure the system does not overshoot. used in homing sequence.
-    long max_pos = 0;
+    //long max_pos = 0;
     Encoder *encoder;
     limit_switch *switch_min;
     limit_switch *switch_max;
@@ -107,7 +107,7 @@ class motor {
         MM_PER_ROT = maxon_MM_PER_ROT;
       }
 
-      max_pos = 150 * CPR * GR; //temporary maximum - calibrated during homing
+      //max_pos = 150 * CPR * GR; //temporary maximum - calibrated during homing
       buffer_count = GR * CPR * 0.5;
 
       pinMode(PWM1, OUTPUT);
@@ -192,9 +192,7 @@ class motor {
         if (label == "X1")
           send_int(MIN_X_HIT);
         else if (label == "Y1" || label == "Y2")
-          send_int(MIN_Y_HIT);
-        else if (label == "Z1")
-          send_int(MIN_Z_HIT);
+          send_int(MIN_Y_HIT);    
         return false;
       }
       if (using_switch_max && switch_max->read()) {
@@ -203,6 +201,8 @@ class motor {
           send_int(MAX_X_HIT);
         else if (label == "Y1" || label == "Y2")
           send_int(MAX_Y_HIT);
+        else if (label == "Z1")
+          send_int(MAX_Z_HIT);
         return false;
       }
       return true;

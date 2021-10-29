@@ -22,8 +22,8 @@
 #define X1QUAD2 16
 #define Y1QUAD1 19
 #define Y1QUAD2 17
-#define Z1QUAD1 21
-#define Z1QUAD2 20
+#define Z1QUAD1 20
+#define Z1QUAD2 21
 
 #define XMIN 38
 #define XMAX 36
@@ -38,9 +38,9 @@ limit_switch switchXmin(XMIN);
 limit_switch switchXmax(XMAX);
 limit_switch switchYmin(YMIN);
 limit_switch switchYmax(YMAX);
-limit_switch switchZmin(ZMIN);
+limit_switch switchZmax(ZMIN);
 
-motor motorZ1("Z1", Z1PWM1, Z1PWM2, Z1QUAD1, Z1QUAD2, &switchZmin, NULL, MAXON353301);
+motor motorZ1("Z1", Z1PWM1, Z1PWM2, Z1QUAD1, Z1QUAD2, &switchZmax, NULL, MAXON353301);
 motor motorX1("X1", X1PWM1, X1PWM2, X1QUAD1, X1QUAD2, &switchXmin, &switchXmax, POLOLU37D);
 motor motorY1("Y1", Y1PWM1, Y1PWM2, Y1QUAD1, Y1QUAD2, &switchYmin, &switchYmax, POLOLU37D);
 motor motorY2("Y2", Y2PWM1, Y2PWM2, Y2QUAD1, Y2QUAD2, &switchYmin, &switchYmax, POLOLU37D);
@@ -198,7 +198,7 @@ void update_switches() {
   switchXmax.update();
   switchYmin.update();
   switchYmax.update();
-  switchZmin.update();
+  switchZmax.update();
 }
 
 bool switch_check(int given_switch) {
@@ -221,7 +221,7 @@ bool switch_check(int given_switch) {
     send_int(MAX_Y_HIT);
     return true;
   }
-  if (switchZmin.read() && given_switch != ZMIN) {
+  if (switchZmax.read() && given_switch != ZMIN) {
     send_int(MIN_Z_HIT);
     return true;
   }
@@ -255,33 +255,9 @@ bool homing_sequence() {
     motorX1.current_pos = motorX1.encoder->read();
   }
   motorX1.encoder->write(0);
-  update_switches();
-
-  //find max:
-  while (!switchXmax.read()) {
-    delay(DELAY_TIME);
-    motorX1.current_pos = motorX1.encoder->read();
-
-    //if any other switches are hit, stop and return error:
-    if (switch_check(XMAX)) {
-      motorX1.brake();
-      return false;
-    }
-  }
-  //on finding max, update position:
   motorX1.brake();
-  motorX1.max_pos = motorX1.current_pos;
-
-  //then move away from the limit switch so that it is not triggered at 0:
-  motorX1.set_PWM(BACK, FULL_POWER);
-  while (motorX1.max_pos - motorX1.current_pos < motorX1.buffer_count) {
-    motorX1.current_pos = motorX1.encoder->read();
-  }
-  motorX1.brake();
-  //new max:
-  motorX1.max_pos = motorX1.current_pos;
   update_switches();
-
+  
   //-----------------------------------------------------
   //y axis homing:
 
@@ -315,99 +291,48 @@ bool homing_sequence() {
   //new 0:
   motorY1.encoder->write(0);
   motorY2.encoder->write(0);
-  update_switches();
-
-  //find max:
-  motorY1.set_PWM(FORWARD, FULL_POWER);
-  motorY2.set_PWM(FORWARD, FULL_POWER);
-
-  while (!switchYmax.read()) {
-    delay(DELAY_TIME);
-    motorY1.current_pos = motorY1.encoder->read();
-    motorY2.current_pos = motorY2.encoder->read();
-
-    //if any other switches are hit, stop and return error:
-    if (switch_check(YMAX)) {
-      motorY1.brake();
-      motorY2.brake();
-      return false;
-    }
-  }
-  //on finding max, update position:
   motorY1.brake();
   motorY2.brake();
-  motorY1.max_pos = motorY1.current_pos;
-  motorY2.max_pos = motorY2.current_pos;
-
-  //then move away from the limit switch so that it is not triggered:
-  motorY1.set_PWM(BACK, FULL_POWER);
-  motorY2.set_PWM(BACK, FULL_POWER);
-  while (motorY1.max_pos - motorY1.current_pos < motorY1.buffer_count) {
-    delay(DELAY_TIME);
-    motorY1.current_pos = motorY1.encoder->read();
-    motorY2.current_pos = motorY2.encoder->read();
-  }
-
-  motorY1.brake();
-  motorY2.brake();
-  //new max:
-  motorY1.max_pos = motorY1.current_pos;
-  motorY2.max_pos = motorY2.current_pos;
   update_switches();
 
-  //-----------------------------------------------------
+//-----------------------------------------------------
   //z axis homing:
-
   //find 0:
-  motorZ1.set_PWM(BACK, FULL_POWER);
-  while (!switchZmin.read()) {
-    delay(DELAY_TIME);
-    //if any other switches are hit, stop and return error:
-    if (switch_check(ZMIN)) {
-      motorZ1.brake();
-      return false;
-    }
-  }
-  //on finding 0, update position:
-  motorZ1.brake();
-  motorZ1.encoder->write(0);
-
-  //then move away from the limit switch so that it is not triggered at 0:
-  motorZ1.set_PWM(FORWARD, FULL_POWER);
-
-  while (motorZ1.current_pos < motorZ1.buffer_count) {
-    delay(DELAY_TIME);
-    motorZ1.current_pos = motorZ1.encoder->read();
-  }
-  //new 0:
-  motorZ1.encoder->write(0);
-  update_switches();
-  //find max:
-  motorZ1.set_PWM(FORWARD, FULL_POWER);
-  
+  motorZ1.set_PWM(FORWARD, FULL_POWER);//for Z, forward moves down and -- encoder value
+  //Serial.println(current_sensor.getCurrentAverage(300));
+  current_sensor.getCurrentAverage(300);//first averaged value seems to give issues
   while (current_sensor.getCurrentAverage(300) < 4.0f) {
     delay(DELAY_TIME);
+    //Serial.println(current_sensor.getCurrentAverage(300));
     motorZ1.current_pos = motorZ1.encoder->read();
     //if any other switches are hit, stop and return error:
-    if (switchZmin.read()) {
+    if (switchZmax.read()) {
       motorZ1.brake();
       return false;
     }
   }
   //on finding max, update position:
   motorZ1.brake();
-  motorZ1.max_pos = motorZ1.current_pos;
-
+  motorZ1.encoder->write(0);
+  motorZ1.current_pos = motorZ1.encoder->read();
+  update_switches();
+  
   //then move away from the limit switch so that it is not triggered:(*5 so that it is not too close to the plate)
   motorZ1.set_PWM(BACK, FULL_POWER);
-  while (motorZ1.max_pos - motorZ1.current_pos < motorZ1.buffer_count * 5.0f) {
+  
+  //move back:
+  while (motorZ1.current_pos < motorZ1.buffer_count*5.0f) {
     delay(DELAY_TIME);
     motorZ1.current_pos = motorZ1.encoder->read();
   }
+  
+  /*while (motorZ1.max_pos - motorZ1.current_pos < motorZ1.buffer_count * 5.0f) {
+    delay(DELAY_TIME);
+    motorZ1.current_pos = motorZ1.encoder->read();
+  }*/
 
   motorZ1.brake();
   update_switches();
-
   //homing complete
   return true;
 }

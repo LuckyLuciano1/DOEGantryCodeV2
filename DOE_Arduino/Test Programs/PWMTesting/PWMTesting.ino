@@ -1,3 +1,5 @@
+#include <Encoder.h>
+
 #define Z1PWM1 4
 #define Z1PWM2 5
 #define X1PWM1 6
@@ -6,6 +8,15 @@
 #define Y1PWM2 9
 #define Y2PWM1 10
 #define Y2PWM2 11
+
+#define Y2QUAD1 2
+#define Y2QUAD2 3
+#define X1QUAD1 18
+#define X1QUAD2 16
+#define Y1QUAD1 19
+#define Y1QUAD2 17
+#define Z1QUAD1 20
+#define Z1QUAD2 21
 
 enum DIRECTION {
   BACK,
@@ -33,13 +44,28 @@ void setup() {
   digitalWrite(Y2PWM1, LOW);
   digitalWrite(Y2PWM2, LOW);
 
+  Encoder *Z1enc = new Encoder(Z1QUAD1, Z1QUAD2);
+  Z1enc->write(1);
+  Encoder *X1enc = new Encoder(X1QUAD1, X1QUAD2);
+  X1enc->write(1);
+  Encoder *Y1enc = new Encoder(Y1QUAD1, Y1QUAD2);
+  Y1enc->write(1);
+  Encoder *Y2enc = new Encoder(Y2QUAD1, Y2QUAD2);
+  Y2enc->write(1);
+      
   //demo:
  
 
-  back_and_forth(X1PWM1, X1PWM2);
-  back_and_forth(Y1PWM1, Y1PWM2);
-  back_and_forth(Y2PWM1, Y2PWM2);
-  
+  //back_and_forth(X1PWM1, X1PWM2);
+  //back_and_forth(Y1PWM1, Y1PWM2);
+  //back_and_forth(Y2PWM1, Y2PWM2);
+  set_PWM(Z1PWM1, Z1PWM2, BACK, 255);
+  for(int x = 0; x < 500; x++){
+    delay(1);
+    Serial.println(Z1enc->read());
+  }
+  //delay(500);
+  brake(Z1PWM1, Z1PWM2);
 }
 
 void loop() {}
@@ -47,7 +73,7 @@ void loop() {}
 
 void back_and_forth(int PWM1, int PWM2) {
   int FULL = 255;
-  set_PWM(PWM1, PWM2, FORWARD, FULL);
+  set_PWM(PWM1, PWM2, FORWARD, FULL); 
   delay(2000);
   set_PWM(PWM1, PWM2, BACK, FULL);
   delay(2000);

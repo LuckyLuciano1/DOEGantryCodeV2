@@ -26,6 +26,8 @@ private:
     enum EVENT_LIST{
         HOMING,
         GO_TO_ZERO,
+        GO_TO_START,
+        GO_TO_END,
         ACTIVATE_DRILL,
         DEACTIVATE_DRILL,
         MOVE_Z,
