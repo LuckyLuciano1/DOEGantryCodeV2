@@ -19,8 +19,11 @@
       <change beforePath="$PROJECT_DIR$/DOE_Arduino/motors.h" beforeDir="false" afterPath="$PROJECT_DIR$/DOE_Arduino/motors.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/EventManager.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/EventManager.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/EventManager.h" beforeDir="false" afterPath="$PROJECT_DIR$/EventManager.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Gantry.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Gantry.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Gantry.h" beforeDir="false" afterPath="$PROJECT_DIR$/Gantry.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/DOEGantryV2.dir/CXX.includecache" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/DOEGantryV2.dir/CXX.includecache" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/DOEGantryV2.dir/EventManager.cpp.obj" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/DOEGantryV2.dir/EventManager.cpp.obj" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/DOEGantryV2.dir/Gantry.cpp.obj" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/DOEGantryV2.dir/Gantry.cpp.obj" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/DOEGantryV2.dir/main.cpp.obj" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/DOEGantryV2.dir/main.cpp.obj" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/DOEGantryV2.dir/objects.a" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/DOEGantryV2.dir/objects.a" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cmake-build-debug/DOEGantryV2.exe" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/DOEGantryV2.exe" afterDir="false" />
@@ -139,6 +142,8 @@
       <workItem from="1635267622294" duration="828000" />
       <workItem from="1635521185405" duration="4494000" />
       <workItem from="1635531268561" duration="3355000" />
+      <workItem from="1635617929680" duration="3942000" />
+      <workItem from="1635622842007" duration="559000" />
     </task>
     <servers />
   </component>

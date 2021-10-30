@@ -78,10 +78,10 @@ class motor {
       this->PWM2 = PWM2;
       this->switch_min = switch_min;
       this->switch_max = switch_max;
-      
+
       encoder = new Encoder(quad1, quad2);
       encoder->write(1);//may not be necessary for it to be 1 rather than 0
-      
+
       myPID = new PID(&PID_input, &PID_output, &PID_setpoint, Kp, Ki, Kd, DIRECT);
       myPID->SetMode(AUTOMATIC);
       myPID->SetTunings(Kp, Ki, Kd);
@@ -124,16 +124,18 @@ class motor {
 
       if (!limit_check())
         return false;
-        
+
+      double current_time = micros();
+      double delta_time = (current_time - prev_cycle_time) / (double) 60000000.0;
+      prev_cycle_time = current_time;
+
+      PID_setpoint += target_vel * delta_time;
+      PID_input = abs(current_pos / (CPR * GR)); //in revolutions
+      myPID->Compute();
+
       if (!target_reached) {
         //calculate delta_time:
-        double current_time = micros();
-        double delta_time = (current_time - prev_cycle_time) / (double) 60000000.0;
-        prev_cycle_time = current_time;
 
-        PID_setpoint += target_vel * delta_time;
-        PID_input = current_pos / (CPR * GR); //in revolutions
-        myPID->Compute();
 
         if (target_distance > 0) {
           if (target_pos / CPR - PID_input < 0) {
@@ -166,7 +168,7 @@ class motor {
         analogWrite(PWM2, 0);
         delayMicroseconds(100);
         analogWrite(PWM1, pwm);
-      } 
+      }
       else if (dir == BACK) {  //right
         analogWrite(PWM1, 0);
         delayMicroseconds(100);
@@ -192,7 +194,7 @@ class motor {
         if (label == "X1")
           send_int(MIN_X_HIT);
         else if (label == "Y1" || label == "Y2")
-          send_int(MIN_Y_HIT);    
+          send_int(MIN_Y_HIT);
         return false;
       }
       if (using_switch_max && switch_max->read()) {

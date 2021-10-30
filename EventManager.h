@@ -28,11 +28,10 @@ private:
         GO_TO_ZERO,
         GO_TO_START,
         GO_TO_END,
+        PLUNGE,
+        RETRACT,
         ACTIVATE_DRILL,
-        DEACTIVATE_DRILL,
-        MOVE_Z,
-        MOVE_X_START,
-        MOVE_X_END
+        DEACTIVATE_DRILL
     };
 
     long long time;

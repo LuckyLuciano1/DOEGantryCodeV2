@@ -60,7 +60,7 @@ void setup() {
   //back_and_forth(Y1PWM1, Y1PWM2);
   //back_and_forth(Y2PWM1, Y2PWM2);
   set_PWM(Z1PWM1, Z1PWM2, BACK, 255);
-  for(int x = 0; x < 500; x++){
+  for(int x = 0; x < 300; x++){
     delay(1);
     Serial.println(Z1enc->read());
   }

@@ -131,8 +131,9 @@ bool homing_sequence() {
   //-----------------------------------------------------
   //z axis homing:
   motorZ1.set_PWM(FORWARD, FULL_POWER);//for Z, forward moves down and -- encoder value
+  delay(20);
   Serial.println(current_sensor.getCurrentAverage(300));
-  while (current_sensor.getCurrentAverage(300) < 4.0f) {
+  while (current_sensor.getCurrentAverage(300) < 3.9f) {
     delay(DELAY_TIME);
     Serial.println(current_sensor.getCurrentAverage(300));
     motorZ1.current_pos = motorZ1.encoder->read();
@@ -155,15 +156,8 @@ bool homing_sequence() {
     delay(DELAY_TIME);
     motorZ1.current_pos = motorZ1.encoder->read();
   }
-  
-  /*while (motorZ1.max_pos - motorZ1.current_pos < motorZ1.buffer_count * 5.0f) {
-    delay(DELAY_TIME);
-    motorZ1.current_pos = motorZ1.encoder->read();
-  }*/
-
   motorZ1.brake();
   update_switches();
-
   //homing complete
   return true; 
 }

@@ -299,11 +299,13 @@ bool homing_sequence() {
   //z axis homing:
   //find 0:
   motorZ1.set_PWM(FORWARD, FULL_POWER);//for Z, forward moves down and -- encoder value
-  //Serial.println(current_sensor.getCurrentAverage(300));
-  current_sensor.getCurrentAverage(300);//first averaged value seems to give issues
-  while (current_sensor.getCurrentAverage(300) < 4.0f) {
-    delay(DELAY_TIME);
-    //Serial.println(current_sensor.getCurrentAverage(300));
+  delay(20);//current spikes in the first few moments of motor running, so don't measure just yet
+  //current_sensor.getCurrentAverage(300);
+  //send_int(current_sensor.getCurrentAverage(300));
+  float current_value = current_sensor.getCurrentAverage(300);
+  while (current_value < 4.01f) {
+    delay(20);
+    current_value = current_sensor.getCurrentAverage(300);
     motorZ1.current_pos = motorZ1.encoder->read();
     //if any other switches are hit, stop and return error:
     if (switchZmax.read()) {
@@ -325,12 +327,6 @@ bool homing_sequence() {
     delay(DELAY_TIME);
     motorZ1.current_pos = motorZ1.encoder->read();
   }
-  
-  /*while (motorZ1.max_pos - motorZ1.current_pos < motorZ1.buffer_count * 5.0f) {
-    delay(DELAY_TIME);
-    motorZ1.current_pos = motorZ1.encoder->read();
-  }*/
-
   motorZ1.brake();
   update_switches();
   //homing complete

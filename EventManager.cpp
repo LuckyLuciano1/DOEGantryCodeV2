@@ -32,12 +32,13 @@ void EventManager::StartUp() {
 
 void EventManager::Update() {
     int event_order[]{
-        //MOVE_Z
         HOMING,
         GO_TO_START,
-        ACTIVATE_DRILL,
+        //ACTIVATE_DRILL,
+        PLUNGE,
         GO_TO_END,
-        DEACTIVATE_DRILL,
+        RETRACT,
+        //DEACTIVATE_DRILL,
         GO_TO_ZERO
     };
     //update clock:
@@ -94,33 +95,25 @@ void EventManager::RunEvent(int event) {
             pause_millisec = 250;
             break;
         case GO_TO_ZERO:
-            gantry->MoveGantryX(0, 100.0f);
-            gantry->MoveGantryY(0, 100.0f);
+            gantry->MoveGantryX(1, 1650.0f);
+            gantry->MoveGantryY(1, 1650.0f);
             pause_millisec = 500;
             break;
         case GO_TO_START:
-            gantry->MoveGantryX(50, 100.0f);
-            //gantry->MoveGantryY(100, 100.0f);
+            gantry->MoveGantryX(22, 1650.0f);
             pause_millisec = 500;
             break;
         case GO_TO_END:
-            //gantry->MoveGantryX(100, 10.0f);
-            gantry->MoveGantryY(50, 60.0f);
+            gantry->MoveGantryY(20, 60.0f);
             pause_millisec = 500;
             break;
-        case MOVE_X_START:
-            gantry->MoveGantryX(50, 100.0f);
-            gantry->MoveGantryY(50, 100.0f);
-            pause_millisec = 250;
+        case PLUNGE:
+            gantry->MoveGantryZ(1, 100.0f);
+            pause_millisec = 500;
             break;
-        case MOVE_X_END:
-            gantry->MoveGantryX(100, 500.0f);
-            gantry->MoveGantryY(100, 500.0f);
-            pause_millisec = 250;
-            break;
-        case MOVE_Z:
-            gantry->MoveGantryZ(50, 500.0f);
-            pause_millisec = 250;
+        case RETRACT:
+            gantry->MoveGantryZ(50, 100.0f);
+            pause_millisec = 500;
             break;
         case ACTIVATE_DRILL:
             std::cout<<"------------------------     Activating Drill     ------------------------"<<std::endl;

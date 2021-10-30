@@ -9,44 +9,44 @@ Gantry::Gantry(Arduino *arduino) {
     this->arduino = arduino;
 }
 
-void Gantry::MoveGantry(float posXmm, float velXmms, float posYmm, float velYmms, float posZmm, float velZmms) {
-    MoveGantryXY(posXmm, velXmms, posYmm, velYmms);
-    MoveGantryZ(posZmm, velZmms);
+void Gantry::MoveGantry(float posXmm, float velXmm_per_min, float posYmm, float velYmm_per_min, float posZmm, float velZmm_per_min) {
+    MoveGantryXY(posXmm, velXmm_per_min, posYmm, velYmm_per_min);
+    MoveGantryZ(posZmm, velZmm_per_min);
 }
 //TODO:test & verify
-void Gantry::MoveGantryXY(float posXmm, float velXmms, float posYmm, float velYmms){
+void Gantry::MoveGantryXY(float posXmm, float velXmm_per_min, float posYmm, float velYmm_per_min){
     //adjust speed proportional to triangle, such that they both complete at the same time.
-    float genVel = std::max(velXmms, velYmms);
-    float new_velXmms = (posXmm/posYmm)*genVel;
-    float new_velYmms = (posYmm/posXmm)*genVel;
+    float genVel = std::max(velXmm_per_min, velYmm_per_min);
+    float new_velXmm_per_min = (posXmm/posYmm)*genVel;
+    float new_velYmm_per_min = (posYmm/posXmm)*genVel;
 
-    genVel = std::max(new_velXmms, new_velYmms);
+    genVel = std::max(new_velXmm_per_min, new_velYmm_per_min);
     //scale to max speed:
     if(genVel > MAX_VEL) {
-        new_velXmms *= MAX_VEL / genVel;
-        new_velYmms *= MAX_VEL / genVel;
+        new_velXmm_per_min *= MAX_VEL / genVel;
+        new_velYmm_per_min *= MAX_VEL / genVel;
     }
 
-    MoveGantryX(posXmm, new_velXmms);
-    MoveGantryY(posYmm, new_velYmms);
+    MoveGantryX(posXmm, new_velXmm_per_min);
+    MoveGantryY(posYmm, new_velYmm_per_min);
 }
-void Gantry::MoveGantryX(float posXmm, float velXmms) {
+void Gantry::MoveGantryX(float posXmm, float velXmm_per_min) {
     std::cout<<"Moving Gantry X axis";
     arduino->SendInt(Arduino::MOVE_X);
     arduino->SendFloat(posXmm);
-    arduino->SendFloat(velXmms);
+    arduino->SendFloat(velXmm_per_min);
 }
-void Gantry::MoveGantryY(float posYmm, float velYmms) {
+void Gantry::MoveGantryY(float posYmm, float velYmm_per_min) {
     std::cout<<"Moving Gantry Y axis";
     arduino->SendInt(Arduino::MOVE_Y);
     arduino->SendFloat(posYmm);
-    arduino->SendFloat(velYmms);
+    arduino->SendFloat(velYmm_per_min);
 }
-void Gantry::MoveGantryZ(float posZmm, float velZmms) {
+void Gantry::MoveGantryZ(float posZmm, float velZmm_per_min) {
     std::cout<<"Moving Gantry Z axis";
     arduino->SendInt(Arduino::MOVE_Z);
     arduino->SendFloat(posZmm);
-    arduino->SendFloat(velZmms);
+    arduino->SendFloat(velZmm_per_min);
 }
 void Gantry::HomeGantry() {
     std::cout<<"Homing Gantry";
