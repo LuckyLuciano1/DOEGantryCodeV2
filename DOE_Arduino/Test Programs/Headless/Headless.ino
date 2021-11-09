@@ -51,7 +51,7 @@ void setup() {
   pinMode(ELECTROMAGNETS, OUTPUT);
   pinMode(DRILL, OUTPUT);
   pinMode(FANS, OUTPUT);
-
+  Serial.print("//////////////////////////////////////");
   digitalWrite(ELECTROMAGNETS, HIGH);
   homing_sequence();
   digitalWrite(ELECTROMAGNETS, LOW);
@@ -62,7 +62,26 @@ float buffer_data = 0.0f;
 bool motors_locked = false;
 bool motor_target_given = false;
 
-void loop() {  
+int counter = 0;
+bool flag = true;
+
+void loop() {
+
+  if (flag) {
+    Serial.println("SETTING TARGET");
+    switch (counter) {
+      case 0:
+        motorX1.set_target(50.0f, 100.0f);//cm_per_min
+        motor_target_given = true;
+        break;
+      case 1:
+        motorX1.set_target(1.0f, 100.0f);
+        motor_target_given = true;
+        break;
+    }
+    flag = false;
+  }
+
   update_switches();
   //MOTORS:
   if (!motors_locked) {
@@ -79,6 +98,13 @@ void loop() {
       send_int(MOTORS_LOCKED);
     }
   }
+  
+  /*Serial.print(motor_target_given);
+  Serial.print(motorX1.target_reached);
+  Serial.print(motorY1.target_reached);
+  Serial.print(motorY2.target_reached);
+  Serial.println(motorZ1.target_reached);*/
+  
   //if motor target has been given then reached, send to the comupter that the motor movement is successful.
   if (motor_target_given &&
       motorX1.target_reached &&
@@ -86,7 +112,10 @@ void loop() {
       motorY2.target_reached &&
       motorZ1.target_reached) {
     motor_target_given = false;
-    send_int(EVENT_SUCCESSFUL);
+    counter++;
+    flag = true;
+    Serial.println("motor event complete");
+    //send_int(EVENT_SUCCESSFUL);
   }
 }//end loop
 
@@ -129,37 +158,104 @@ bool homing_sequence() {
   const int FULL_POWER = 255;
   const int DELAY_TIME = 0;
   //-----------------------------------------------------
+  //x axis homing:
+  //find 0:
+  motorX1.set_PWM(BACK, 255);
+  while (!switchXmin.read()) {
+    //reading too fast generates false positives on the limit switches for some reason (Y axis specific for, again, some reason)
+    //if any other switches are hit, stop and return error:
+    if (switch_check(XMIN)) {
+      motorX1.brake();
+      return false;
+    }
+  }
+
+  //on finding 0, update position:
+  motorX1.brake();
+  motorX1.encoder->write(0);
+
+  //then move away from the limit switch so that it is not triggered:
+  motorX1.set_PWM(FORWARD, FULL_POWER);
+  while (motorX1.current_pos < motorX1.buffer_count) {
+
+    motorX1.current_pos = motorX1.encoder->read();
+  }
+  motorX1.encoder->write(0);
+  motorX1.brake();
+  update_switches();
+
+  //-----------------------------------------------------
+  //y axis homing:
+
+  //find 0:
+  motorY1.set_PWM(BACK, FULL_POWER);
+  motorY2.set_PWM(BACK, FULL_POWER);
+  while (!switchYmin.read()) {
+
+    //if any other switches are hit, stop and return error:
+    if (switch_check(YMIN)) {
+      motorY1.brake();
+      motorY2.brake();
+      return false;
+    }
+  }
+  //on finding 0, update position:
+  motorY1.brake();
+  motorY2.brake();
+  motorY1.encoder->write(0);
+  motorY2.encoder->write(0);
+
+  //then move away from the limit switch so that it is not triggered at 0:
+  motorY1.set_PWM(FORWARD, FULL_POWER);
+  motorY2.set_PWM(FORWARD, FULL_POWER);
+
+  while (motorY1.current_pos < motorY1.buffer_count) {
+
+    motorY1.current_pos = motorY1.encoder->read();
+    motorY2.current_pos = motorY2.encoder->read();
+  }
+  //new 0:
+  motorY1.encoder->write(0);
+  motorY2.encoder->write(0);
+  motorY1.brake();
+  motorY2.brake();
+  update_switches();
+
+  //-----------------------------------------------------
   //z axis homing:
-  motorZ1.set_PWM(FORWARD, FULL_POWER);//for Z, forward moves down and -- encoder value
-  delay(20);
-  Serial.println(current_sensor.getCurrentAverage(300));
-  while (current_sensor.getCurrentAverage(300) < 3.9f) {
-    delay(DELAY_TIME);
-    Serial.println(current_sensor.getCurrentAverage(300));
+  //find 0:
+  /*
+    motorZ1.set_PWM(FORWARD, FULL_POWER);//for Z, forward moves down and subtracts from encoder value
+    delay(20);//current spikes in the first few moments of motor running, so don't measure just yet
+    float current_value = current_sensor.getCurrentAverage(300);
+    while (current_value < 4.01f) {
+    delay(20);
+    current_value = current_sensor.getCurrentAverage(300);
     motorZ1.current_pos = motorZ1.encoder->read();
     //if any other switches are hit, stop and return error:
     if (switchZmax.read()) {
       motorZ1.brake();
       return false;
     }
-  }
-  //on finding max, update position:
-  motorZ1.brake();
-  motorZ1.encoder->write(0);
-  motorZ1.current_pos = motorZ1.encoder->read();
-  update_switches();
-  
-  //then move away from the limit switch so that it is not triggered:(*5 so that it is not too close to the plate)
-  motorZ1.set_PWM(BACK, FULL_POWER);
-  //move back:
-  while (motorZ1.current_pos < motorZ1.buffer_count*5.0f) {
-    delay(DELAY_TIME);
+    }
+    //update position:
+    motorZ1.brake();
+    motorZ1.encoder->write(0);
     motorZ1.current_pos = motorZ1.encoder->read();
-  }
-  motorZ1.brake();
-  update_switches();
+    update_switches();
+
+    //then move away from the limit switch so that it is not triggered:(*5 so that it is not too close to the plate)
+    motorZ1.set_PWM(BACK, FULL_POWER);
+
+    //move back:
+    while (motorZ1.current_pos < motorZ1.buffer_count*5.0f) {
+    motorZ1.current_pos = motorZ1.encoder->read();
+    }
+    motorZ1.brake();
+    update_switches();
+  */
   //homing complete
-  return true; 
+  return true;
 }
 
 void exit_and_reset_arduino()

@@ -3,12 +3,12 @@
 #include "serial.h"
 
 //type-specific config variables:
-int pololu_CPR = 64;
-int pololu_GR = 30;//300*0.85;
-int pololu_MM_PER_ROT = 5;
-int maxon_CPR = 500;
-int maxon_GR = 308;//*4;
-int maxon_MM_PER_ROT = 93;
+float pololu_CPR = 64;
+float pololu_GR = 30;//300*0.85;
+float pololu_MM_PER_ROT = 5;
+float maxon_CPR = 500;
+float maxon_GR = 308;//*4;
+float maxon_MM_PER_ROT = 93;
 
 enum MOTOR_TYPE {
   POLOLU37D,
@@ -51,11 +51,16 @@ class motor {
     const char* label;
 
     //pololu tuning:
-    int Kp = 105;
-    int Ki = 6;
-    int Kd = 2;
+    //float Kp = 105;
+    //float Ki = 6;
+    //float Kd = 2;
+    double Kp = 0.09;
+    double Ki = 0.005;
+    double Kd = 0;
     double target_pos, target_vel, target_distance;
-    double PID_setpoint, PID_input, PID_output;
+    double PID_setpoint = 0, PID_input = 0, PID_output = 0;
+    double PID_start_pos = 0, PID_end_pos = 0;
+    int PID_dir = 1;
     double prev_cycle_time = 0;
     PID *myPID;
 
@@ -125,44 +130,67 @@ class motor {
       if (!limit_check())
         return false;
 
+      //calculate delta_time:
       double current_time = micros();
       double delta_time = (current_time - prev_cycle_time) / (double) 60000000.0;
       prev_cycle_time = current_time;
 
-      PID_setpoint += target_vel * delta_time;
-      PID_input = abs(current_pos / (CPR * GR)); //in revolutions
+      //compute PID:
+      PID_setpoint += target_vel * delta_time;// * (target_distance / abs(target_distance));
+
+      if (PID_dir > 0)
+        PID_input = current_pos - PID_start_pos; //abs(current_pos); //in revolutions
+      else
+        PID_input = PID_start_pos - current_pos;
+
       myPID->Compute();
 
+      //drive motor:
       if (!target_reached) {
-        //calculate delta_time:
-
-
-        if (target_distance > 0) {
-          if (target_pos / CPR - PID_input < 0) {
+        //forward:
+        if (PID_dir > 0) {
+          if (current_pos - PID_start_pos > PID_end_pos) {
             brake();
             target_reached = true;
-          } else
-            set_PWM(FORWARD, PID_output);
+          } else {
+            if (label == "Z1")
+              set_PWM(BACK, PID_output);
+            else
+              set_PWM(FORWARD, PID_output);
+          }
+        }
 
-        } else if (target_distance < 0) {
-          if (target_pos / CPR - PID_input > 0) {
+        //backward:
+        else if (PID_dir < 0) {
+          if (PID_start_pos - current_pos > PID_end_pos) {
             brake();
             target_reached = true;
-          } else
-            set_PWM(BACK, PID_output);
+          } else {
+            if (label == "Z1")
+              set_PWM(FORWARD, PID_output);
+            else
+              set_PWM(BACK, PID_output);
+          }
         }
       }
       return true;
     }
-    void set_target(int target_pos_mm, int target_vel_rpm) {
+    void set_target(float target_pos_mm, float target_vel_rpm) {
+      target_pos = (target_pos_mm / MM_PER_ROT) * CPR * GR;
+      target_vel = target_vel_rpm * 2048.0f / MM_PER_ROT;
+      if (label == "Z1")
+        target_vel *= 1000.0f;
+
       target_reached = false;
       current_pos = encoder->read();
-
-      //target_vel = (target_vel_mm_per_min) / MM_PER_ROT; //now in rpm
-      target_vel = 330.0 * (target_vel_rpm / (225.0 * 5.0));
-      target_pos = (target_pos_mm / MM_PER_ROT) * CPR;
       target_distance = target_pos - current_pos;
+
+      PID_start_pos = encoder->read();
+      PID_end_pos = abs(PID_start_pos - target_pos);
+      PID_dir = (target_distance / abs(target_distance));
+      PID_setpoint = 100.0f;
     }
+
     void set_PWM(bool dir, uint8_t pwm) {
       if (dir == FORWARD) {    //left
         analogWrite(PWM2, 0);

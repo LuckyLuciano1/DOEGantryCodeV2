@@ -23,7 +23,7 @@
 #define Y1QUAD1 19
 #define Y1QUAD2 17
 #define Z1QUAD1 20
-#define Z1QUAD2 21 
+#define Z1QUAD2 21
 
 #define XMIN 38
 #define XMAX 36
