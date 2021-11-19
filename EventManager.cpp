@@ -95,24 +95,24 @@ void EventManager::RunEvent(int event) {
             pause_millisec = 250;
             break;
         case GO_TO_ZERO:
-            gantry->MoveGantryX(1, 1650.0f);
-            gantry->MoveGantryY(1, 1650.0f);
+            gantry->MoveGantryX(1.0f, 1650.0f);
+            gantry->MoveGantryY(1.0f, 1650.0f);
             pause_millisec = 500;
             break;
         case GO_TO_START:
-            gantry->MoveGantryX(22, 1650.0f);
+            gantry->MoveGantryX(14.0f, 1650.0f);
             pause_millisec = 500;
             break;
         case GO_TO_END:
-            gantry->MoveGantryY(20, 100.0f);
+            gantry->MoveGantryY(20.0f, 10.0f);
             pause_millisec = 500;
             break;
         case PLUNGE:
-            gantry->MoveGantryZ(10, 20.0f);
+            gantry->MoveGantryZ(-1.0f, 20.0f);
             pause_millisec = 500;
             break;
         case RETRACT:
-            gantry->MoveGantryZ(30, 20.0f);
+            gantry->MoveGantryZ(30.0f, 20.0f);
             pause_millisec = 500;
             break;
         case ACTIVATE_DRILL:
